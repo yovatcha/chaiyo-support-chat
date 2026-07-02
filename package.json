@@ -1,0 +1,10 @@
+{
+  "name": "ai-support-chat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Yo-bot — embeddable AI support chat about Chaiyo. Groq-powered RAG + self-fine-tuned Mamba showcase.",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
