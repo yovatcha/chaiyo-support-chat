@@ -57,13 +57,17 @@ def chat(req: ChatRequest):
     with lock, torch.no_grad():
         out = model.generate(
             **inputs,
-            max_new_tokens=80,
-            do_sample=False,
-            repetition_penalty=1.3,
+            max_new_tokens=90,
+            # Sampling (vs greedy) makes replies feel human instead of robotic.
+            # Tune via env vars without redeploying code.
+            do_sample=True,
+            temperature=float(os.environ.get("TEMPERATURE", "0.7")),
+            top_p=float(os.environ.get("TOP_P", "0.9")),
+            repetition_penalty=float(os.environ.get("REPETITION_PENALTY", "1.3")),
             eos_token_id=tokenizer.eos_token_id,
         )
     text = tokenizer.decode(out[0], skip_special_tokens=True)
     reply = text.split("A:", 1)[-1].strip()
     # A tiny model sometimes keeps generating new Q/A pairs — cut at the first.
     reply = reply.split("\nQ:", 1)[0].strip() or "…(the tiny model is speechless)"
-    return {"reply": reply, "model": "mamba-130m (fine-tuned by Chaiyo)"}
+    return {"reply": reply, "model": f"{MODEL_ID.split('/')[-1]} (fine-tuned by Chaiyo)"}
