@@ -5,6 +5,8 @@
  *   <script src="https://YOUR-PORTFOLIO-DOMAIN/yo-bot.js" defer></script>
  *
  * Optional attributes:
+ *   data-site="portfolio"                     which site's knowledge to use
+ *                                             (see sites/ in the repo)
  *   data-endpoint="https://…/api/chat"        override the chat API URL
  *   data-mamba-endpoint="https://…/chat"      enable the "My Mamba" toggle
  *   data-bot-name="MyBot"                     display name in header + greeting
@@ -31,6 +33,7 @@
     (scriptOrigin ? scriptOrigin + '/api/chat' : '/api/chat');
   var MAMBA_ENDPOINT = (script && script.dataset.mambaEndpoint) || '';
   var BOT_NAME = (script && script.dataset.botName) || 'Yo-bot';
+  var SITE = (script && script.dataset.site) || 'portfolio';
 
   // UI language: data-lang="th"/"en" wins; otherwise follow the browser.
   var LANG =
@@ -229,7 +232,7 @@
       fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history.slice(-8) }),
+        body: JSON.stringify({ site: SITE, messages: history.slice(-8) }),
       })
         .then(function (res) {
           return res

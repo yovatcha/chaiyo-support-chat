@@ -1,11 +1,8 @@
-// Knowledge base for the AI support chat (/api/chat).
-// Underscore prefix = Vercel does NOT expose this file as an endpoint.
-//
-// This is the single source of truth the chatbot answers from.
-// Edit freely — plain markdown-ish text, kept small enough to fit in
-// the system prompt (context stuffing; no vector DB needed at this size).
+// Knowledge base for the "portfolio" site (Chaiyo's portfolio).
+// Single source of truth this tenant's bot answers from.
+// Plain markdown-ish text — small enough for context stuffing (no vector DB).
 
-export const KNOWLEDGE = `
+export const knowledge = `
 # About Chaiyo
 
 ## Identity
@@ -44,13 +41,13 @@ export const KNOWLEDGE = `
 2. Thailand Election 2569 (https://election69.dailynews.co.th/) — real-time
    election results platform built for Daily News covering Thailand's 2026
    general election and referendum. Live vote counts by candidate, party, and
-   constituency on an interactive WebGL map; Scala backend aggregating a
-   continuous results feed with sub-second updates to a React front end that
-   stayed stable under a massive nationwide traffic spike.
+   constituency on an interactive WebGL map of Thailand; Scala backend
+   aggregating a continuous results feed with sub-second updates to a React
+   front end that stayed stable under a massive nationwide traffic spike.
 3. LostNFound — university thesis (see Education).
 4. This portfolio itself — a Three.js particle-scene site built with Vite,
-   plus this AI support chat he built (Groq-powered RAG, and a Mamba
-   language model he fine-tuned himself as a showcase).
+   plus this AI support chat he built (Groq-powered grounded generation, and
+   a Mamba language model he fine-tuned himself as a showcase).
 
 ## Skills (self-rated, 5 = strongest)
 - Frontend & Mobile: React (5), Next.js (5), TypeScript (5), JavaScript (5),
@@ -79,7 +76,7 @@ export const KNOWLEDGE = `
   fine-tuned one on his own data for this chat's showcase mode.
 
 ## ข้อมูลภาษาไทย (canonical Thai spellings — use these EXACTLY when replying in Thai)
-- ชื่อ-นามสกุล: วัชรมัย รอดหริ่ง
+- ชื่อ-นามสกุล: วัชรมัย รอดริ้ง
 - ชื่อเล่น: ไชโย (หรือเรียกสั้น ๆ ว่า "โย")
 - เกิด: 21 กันยายน 2545 (ค.ศ. 2002)
 - ตำแหน่ง: นักพัฒนาซอฟต์แวร์ (Software Developer) ที่บริษัท ODT ตั้งแต่มกราคม 2568 (2025)
@@ -90,37 +87,4 @@ export const KNOWLEDGE = `
 - มัธยม: โรงเรียนสาธิต มศว ประสานมิตร (ฝ่ายมัธยม) สายคอมพิวเตอร์ ปี 2561–2563
 - โปรเจกต์เด่น: Gig&Co (แพลตฟอร์มจ้างงาน gig), เว็บรายงานผลเลือกตั้ง 2569 แบบเรียลไทม์ให้เดลินิวส์, LostNFound, และเว็บพอร์ตโฟลิโอ Three.js
 - ติดต่อ: อีเมล yoyo.rodring@gmail.com
-`;
-
-export const SYSTEM_PROMPT = `
-You are "Yo-bot", the AI assistant on Chaiyo's portfolio website.
-Your job: answer visitors' questions about Chaiyo (Vatcharamai Rodring) —
-his work, skills, projects, background, and how to contact him.
-
-Rules:
-- Answer ONLY from the knowledge below. If something isn't covered, say you
-  don't know and suggest emailing Chaiyo directly (yoyo.rodring@gmail.com).
-- Be friendly, concise (2-4 sentences unless asked for detail), and speak in
-  first person about yourself but third person about Chaiyo.
-- Never invent projects, dates, employers, or contact details.
-- Politely refuse off-topic requests (homework, general coding help, etc.)
-  and steer back to Chaiyo.
-
-Thai language rules (สำคัญมาก):
-- If the visitor writes in Thai, reply ENTIRELY in natural, fluent Thai —
-  not translated-sounding Thai. Use friendly spoken register with polite
-  particle "ครับ" (Yo-bot speaks as a male bot). Match the visitor's vibe:
-  casual Thai gets casual Thai.
-- Use the canonical Thai spellings from the "ข้อมูลภาษาไทย" section EXACTLY
-  (e.g. ไชโย, วัชรมัย รอดหริ่ง, มจธ.) — never re-transliterate names yourself.
-- Keep tech terms in English as Thai developers do (React, Next.js, Scrum,
-  deploy) — don't force-translate them.
-- Understand and answer Thai internet slang and casual phrasings (เก่งปะ,
-  ทำไรได้บ้าง, ขอเมลหน่อย, จ้างได้ป่าว ฯลฯ).
-- If the visitor mixes Thai and English, mirror that mixing naturally.
-- For any other language (Japanese, Chinese, etc.), reply in that language
-  if you can, else in English.
-
-Knowledge:
-${KNOWLEDGE}
 `;

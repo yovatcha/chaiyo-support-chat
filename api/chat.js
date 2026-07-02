@@ -1,8 +1,12 @@
-// Vercel Serverless Function — AI support chat for the portfolio.
+// Vercel Serverless Function — multi-site AI support chat.
 //
-// Strategy: context-stuffed RAG. The whole knowledge base (a few KB) is
-// placed in the system prompt — at this size a vector DB adds nothing.
-// Inference runs on Groq's free tier (fast, OpenAI-compatible API).
+// One endpoint serves EVERY registered website: the widget sends
+// { site: "<id>", messages: [...] } and this function grounds the model in
+// that site's knowledge (see sites/<id>/). No site param = default site.
+//
+// Strategy: context stuffing / grounded generation. Each site's knowledge
+// (a few KB) is placed whole in the system prompt — at this size a vector
+// DB adds nothing. Inference runs on Groq's free tier (OpenAI-compatible).
 //
 // Required environment variable (Vercel → Settings → Environment Variables):
 //   GROQ_API_KEY — free key from https://console.groq.com/keys
@@ -14,10 +18,20 @@
 //                     Defaults to "*" so the one-line embed works anywhere;
 //                     tighten it if you want the API portfolio-only.
 
-import { SYSTEM_PROMPT } from './_knowledge.js';
+import { SITES, DEFAULT_SITE } from '../sites/index.js';
+import { buildSystemPrompt } from './_prompt.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = process.env.CHAT_MODEL || 'llama-3.3-70b-versatile';
+
+// System prompts are deterministic per site — build once per warm instance.
+const promptCache = new Map();
+function systemPromptFor(siteId) {
+  if (!promptCache.has(siteId)) {
+    promptCache.set(siteId, buildSystemPrompt(SITES[siteId]));
+  }
+  return promptCache.get(siteId);
+}
 
 // Guardrails so a single visitor can't burn the free tier.
 const MAX_MESSAGE_CHARS = 500; // per user message
@@ -77,8 +91,12 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: 'Too many messages — take a breath and try again in a minute.' });
   }
 
-  // Validate body: { messages: [{ role: 'user'|'assistant', content: string }] }
-  const { messages } = req.body || {};
+  // Validate body: { site?: string, messages: [{ role, content }] }
+  const { messages, site: siteRaw } = req.body || {};
+  const siteId = typeof siteRaw === 'string' && siteRaw ? siteRaw : DEFAULT_SITE;
+  if (!SITES[siteId]) {
+    return res.status(400).json({ error: `Unknown site "${siteId.slice(0, 40)}"` });
+  }
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages[] required' });
   }
@@ -108,7 +126,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...history],
+        messages: [{ role: 'system', content: systemPromptFor(siteId) }, ...history],
         max_tokens: 400,
         temperature: 0.5,
       }),
@@ -127,7 +145,7 @@ export default async function handler(req, res) {
     if (!reply) {
       return res.status(502).json({ error: 'Empty reply from model.' });
     }
-    return res.status(200).json({ reply, model: 'groq' });
+    return res.status(200).json({ reply, model: 'groq', site: siteId });
   } catch (err) {
     console.error('chat handler error', err);
     return res.status(500).json({ error: 'Something went wrong.' });
