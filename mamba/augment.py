@@ -16,12 +16,27 @@ import argparse
 import json
 import os
 import re
+import ssl
 import sys
 import time
 import urllib.request
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL = os.environ.get("CHAT_MODEL", "llama-3.3-70b-versatile")
+
+
+def make_ssl_context() -> ssl.SSLContext:
+    """macOS Pythons often lack root certs (CERTIFICATE_VERIFY_FAILED).
+    Prefer certifi's bundle when available; fall back to system default."""
+    try:
+        import certifi  # pip3 install certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
+
+
+SSL_CTX = make_ssl_context()
 
 PROMPT = """You are augmenting a fine-tuning dataset for a tiny language model
 that answers questions about Chaiyo (a Thai software developer).
@@ -61,14 +76,44 @@ def call_groq(api_key: str, content: str, retries: int = 3) -> str:
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
+            # Cloudflare fronts Groq and may 403 Python's default UA.
+            "User-Agent": "Mozilla/5.0 (compatible; yo-bot-augment/1.0)",
         },
     )
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=60) as res:
+            with urllib.request.urlopen(req, timeout=60, context=SSL_CTX) as res:
                 data = json.load(res)
             return data["choices"][0]["message"]["content"]
-        except Exception as e:  # rate limits etc. — back off and retry
+        except urllib.error.HTTPError as e:
+            detail = ""
+            try:
+                detail = e.read().decode("utf-8", "replace")[:500]
+            except Exception:
+                pass
+            if e.code in (401, 403):
+                sys.exit(
+                    f"\nGroq rejected the request (HTTP {e.code}).\n"
+                    f"Server said: {detail}\n\n"
+                    "Checklist:\n"
+                    "  1. Key set in THIS terminal?  echo $GROQ_API_KEY\n"
+                    "  2. No quotes/spaces pasted with it? Re-export cleanly:\n"
+                    "     export GROQ_API_KEY=gsk_xxxxxxxx\n"
+                    "  3. Key still active at https://console.groq.com/keys ?\n"
+                    "     (make a fresh one if unsure)"
+                )
+            wait = 5 * (attempt + 1)
+            print(f"  … retry in {wait}s (HTTP {e.code}: {detail[:120]})", file=sys.stderr)
+            time.sleep(wait)
+        except Exception as e:  # network issues etc. — back off and retry
+            if "CERTIFICATE_VERIFY_FAILED" in str(e):
+                sys.exit(
+                    "\nSSL certificate error — your Python has no root certificates.\n"
+                    "Fix with ONE of these, then re-run:\n"
+                    "  pip3 install certifi\n"
+                    '  open "/Applications/Python 3.13/Install Certificates.command"'
+                    " (adjust to your Python version)"
+                )
             wait = 5 * (attempt + 1)
             print(f"  … retry in {wait}s ({e})", file=sys.stderr)
             time.sleep(wait)

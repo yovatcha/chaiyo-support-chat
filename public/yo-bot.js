@@ -7,6 +7,9 @@
  * Optional attributes:
  *   data-endpoint="https://…/api/chat"        override the chat API URL
  *   data-mamba-endpoint="https://…/chat"      enable the "My Mamba" toggle
+ *   data-bot-name="MyBot"                     display name in header + greeting
+ *   data-lang="th"                            force UI language (th/en);
+ *                                             default follows the browser
  *
  * By default the chat API is assumed to live on the same origin the script
  * was loaded from (…/api/chat). Plain IIFE — no modules, no dependencies.
@@ -27,9 +30,23 @@
     (script && script.dataset.endpoint) ||
     (scriptOrigin ? scriptOrigin + '/api/chat' : '/api/chat');
   var MAMBA_ENDPOINT = (script && script.dataset.mambaEndpoint) || '';
+  var BOT_NAME = (script && script.dataset.botName) || 'Yo-bot';
 
-  var GREETING =
-    "Hi! I'm Yo-bot 🤖 — ask me anything about Chaiyo: his work, skills, projects, or how to reach him.";
+  // UI language: data-lang="th"/"en" wins; otherwise follow the browser.
+  var LANG =
+    (script && script.dataset.lang) ||
+    ((navigator.language || '').toLowerCase().indexOf('th') === 0 ? 'th' : 'en');
+  var TH = LANG === 'th';
+
+  var GREETING = TH
+    ? 'สวัสดีครับ! ผม ' +
+      BOT_NAME +
+      ' 🤖 ถามอะไรเกี่ยวกับไชโยได้เลย — งาน สกิล โปรเจกต์ หรือช่องทางติดต่อครับ'
+    : "Hi! I'm " +
+      BOT_NAME +
+      ' 🤖 — ask me anything about Chaiyo: his work, skills, projects, or how to reach him.';
+  var SUBTITLE = TH ? 'AI support · ถามเรื่องไชโยได้เลย' : 'AI support · ask about Chaiyo';
+  var PLACEHOLDER = TH ? 'ถามเรื่องไชโย…' : 'Ask about Chaiyo…';
 
   // --- styles (all values fall back so host pages without the portfolio ---
   // --- theme still look right) ---------------------------------------------
@@ -104,8 +121,12 @@
     var head = el('div', 'yobot-head');
     head.appendChild(el('span', 'yobot-head__dot'));
     var titleWrap = el('div', '');
-    titleWrap.appendChild(el('div', 'yobot-head__title', 'Yo-bot'));
-    titleWrap.appendChild(el('div', 'yobot-head__sub', 'AI support · ask about Chaiyo'));
+    var title = el('div', 'yobot-head__title');
+    title.textContent = BOT_NAME;
+    titleWrap.appendChild(title);
+    var subEl = el('div', 'yobot-head__sub');
+    subEl.textContent = SUBTITLE;
+    titleWrap.appendChild(subEl);
     head.appendChild(titleWrap);
 
     var modeWrap = el('div', 'yobot-mode');
@@ -125,7 +146,7 @@
     var log = el('div', 'yobot-log');
     var form = el('form', 'yobot-form');
     var input = el('input');
-    input.placeholder = 'Ask about Chaiyo…';
+    input.placeholder = PLACEHOLDER;
     input.maxLength = 500;
     var send = el('button', '', 'Send');
     send.type = 'submit';
