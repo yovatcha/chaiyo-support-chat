@@ -76,7 +76,8 @@ export const knowledge = `
   fine-tuned one on his own data for this chat's showcase mode.
 
 ## ข้อมูลภาษาไทย (canonical Thai spellings — use these EXACTLY when replying in Thai)
-- ชื่อ-นามสกุล: วัชรมัย รอดริ้ง
+- ชื่อ-นามสกุล: วัชรมัย รอดหริ่ง
+- วันเกิด: 21 กันยายน 2545
 - ชื่อเล่น: ไชโย (หรือเรียกสั้น ๆ ว่า "โย")
 - เกิด: 21 กันยายน 2545 (ค.ศ. 2002)
 - ตำแหน่ง: นักพัฒนาซอฟต์แวร์ (Software Developer) ที่บริษัท ODT ตั้งแต่มกราคม 2568 (2025)
