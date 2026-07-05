@@ -1,14 +1,21 @@
 {
-  "name": "ai-support-chat",
+  "name": "yo-bot-platform",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "Yo-bot — embeddable AI support chat about Chaiyo. Groq-powered RAG + self-fine-tuned Mamba showcase.",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.110.0"
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.110.0",
+    "next": "^15.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }

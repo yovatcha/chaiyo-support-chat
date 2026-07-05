@@ -1,0 +1,32 @@
+{
+  "node": {
+    "40beeceec6b04f7a315582e0feba4270ede0739cb8": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fvatcharamai%2Fmy-projects%2Fyo-ai-support-chat%2Fapp%2Flogin%2Factions.js%22%2C%5B%7B%22id%22%3A%2240beeceec6b04f7a315582e0feba4270ede0739cb8%22%2C%22exportedName%22%3A%22signup%22%2C%22filename%22%3A%22app%2Flogin%2Factions.js%22%7D%2C%7B%22id%22%3A%2240c5834d04676ca99f6c5bbf6c1b089b0a61ec413b%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Flogin%2Factions.js%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/login/page": "rsc"
+      },
+      "filename": "app/login/actions.js",
+      "exportedName": "signup"
+    },
+    "40c5834d04676ca99f6c5bbf6c1b089b0a61ec413b": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fvatcharamai%2Fmy-projects%2Fyo-ai-support-chat%2Fapp%2Flogin%2Factions.js%22%2C%5B%7B%22id%22%3A%2240beeceec6b04f7a315582e0feba4270ede0739cb8%22%2C%22exportedName%22%3A%22signup%22%2C%22filename%22%3A%22app%2Flogin%2Factions.js%22%7D%2C%7B%22id%22%3A%2240c5834d04676ca99f6c5bbf6c1b089b0a61ec413b%22%2C%22exportedName%22%3A%22login%22%2C%22filename%22%3A%22app%2Flogin%2Factions.js%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/login/page": "rsc"
+      },
+      "filename": "app/login/actions.js",
+      "exportedName": "login"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "brNQU+dY8OSEkIZhrUHsGMbWuu5lbiDV87TPD1uTTDc="
+}
