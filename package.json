@@ -6,5 +6,9 @@
   "description": "Yo-bot — embeddable AI support chat about Chaiyo. Groq-powered RAG + self-fine-tuned Mamba showcase.",
   "scripts": {
     "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.110.0"
   }
 }

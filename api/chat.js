@@ -1,37 +1,32 @@
-// Vercel Serverless Function — multi-site AI support chat.
+// Vercel Serverless Function — multi-tenant AI support chat (platform MVP).
 //
-// One endpoint serves EVERY registered website: the widget sends
-// { site: "<id>", messages: [...] } and this function grounds the model in
-// that site's knowledge (see sites/<id>/). No site param = default site.
+// One endpoint serves EVERY bot on the platform. The embed widget sends
+// { bot: "<public_id>", messages: [...] } and this function grounds the model
+// in that bot's knowledge, loaded from the database (Supabase table: bots).
 //
-// Strategy: context stuffing / grounded generation. Each site's knowledge
-// (a few KB) is placed whole in the system prompt — at this size a vector
-// DB adds nothing. Inference runs on Groq's free tier (OpenAI-compatible).
+// This replaces the old git-committed sites/ registry: bot config now lives in
+// the DB, so users create and edit their own bots from a dashboard instead of
+// a developer editing files and redeploying.
 //
-// Required environment variable (Vercel → Settings → Environment Variables):
-//   GROQ_API_KEY — free key from https://console.groq.com/keys
+// Strategy: manual mode / context stuffing. The bot's `knowledge` text is
+// placed whole in the system prompt (small knowledge bases don't need a vector
+// DB). Inference runs on Groq (OpenAI-compatible).
+//
+// Required environment variables (Vercel → Settings → Environment Variables):
+//   GROQ_API_KEY               — free key from https://console.groq.com/keys
+//   SUPABASE_URL               — https://YOUR-PROJECT.supabase.co
+//   SUPABASE_SERVICE_ROLE_KEY  — server-only; never expose to the browser
 //
 // Optional:
-//   CHAT_MODEL      — defaults to "llama-3.3-70b-versatile"
-//   ALLOWED_ORIGINS — comma-separated origins allowed to embed the widget
-//                     cross-site (e.g. "https://blog.example.com").
-//                     Defaults to "*" so the one-line embed works anywhere;
-//                     tighten it if you want the API portfolio-only.
+//   CHAT_MODEL — defaults to "llama-3.3-70b-versatile"
 
-import { SITES, DEFAULT_SITE } from '../sites/index.js';
 import { buildSystemPrompt } from './_prompt.js';
+import { getBotByPublicId, supabaseConfigured } from './_supabase.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = process.env.CHAT_MODEL || 'llama-3.3-70b-versatile';
 
-// System prompts are deterministic per site — build once per warm instance.
-const promptCache = new Map();
-function systemPromptFor(siteId) {
-  if (!promptCache.has(siteId)) {
-    promptCache.set(siteId, buildSystemPrompt(SITES[siteId]));
-  }
-  return promptCache.get(siteId);
-}
+const DEFAULT_BOT = 'portfolio';
 
 // Guardrails so a single visitor can't burn the free tier.
 const MAX_MESSAGE_CHARS = 500; // per user message
@@ -39,19 +34,19 @@ const MAX_HISTORY = 8; // turns kept from client history
 const RATE_LIMIT = 10; // requests…
 const RATE_WINDOW_MS = 60_000; // …per minute per IP (warm-instance memory)
 
+// Bot config comes from the DB; cache it per warm instance with a short TTL so
+// dashboard edits show up within a minute without a DB hit on every message.
+const BOT_TTL_MS = 60_000;
+const botCache = new Map(); // public_id -> { bot, prompt, ts }
+
 const hits = new Map(); // ip -> [timestamps]
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean);
-
 function setCors(req, res) {
+  // Embeds live on arbitrary customer domains, so reflect the request origin at
+  // the CORS layer. Per-bot origin locking is enforced in the handler once we
+  // know which bot is addressed (bots.allowed_origins).
   const origin = req.headers.origin;
-  if (!origin) return; // same-origin request — no CORS headers needed
-  if (ALLOWED_ORIGINS.includes('*')) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else if (ALLOWED_ORIGINS.includes(origin)) {
+  if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
   }
@@ -69,6 +64,33 @@ function rateLimited(ip) {
   return list.length > RATE_LIMIT;
 }
 
+// Load a bot's config + prebuilt system prompt, cached per warm instance.
+async function loadBot(publicId) {
+  const cached = botCache.get(publicId);
+  if (cached && Date.now() - cached.ts < BOT_TTL_MS) return cached;
+
+  const bot = await getBotByPublicId(publicId);
+  if (!bot) return null;
+
+  const prompt = buildSystemPrompt({
+    persona: bot.persona,
+    scope: bot.scope,
+    fallbackContact: bot.fallback_contact,
+    knowledge: bot.knowledge,
+  });
+  const entry = { bot, prompt, ts: Date.now() };
+  botCache.set(publicId, entry);
+  return entry;
+}
+
+// Per-bot cross-origin control. Empty allow-list = allow any site (MVP default).
+function originAllowed(bot, origin) {
+  const list = bot.allowed_origins || [];
+  if (list.length === 0) return true; // not restricted
+  if (!origin) return true; // same-origin / server-to-server
+  return list.includes(origin);
+}
+
 export default async function handler(req, res) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -82,6 +104,11 @@ export default async function handler(req, res) {
       error: 'Chat backend not configured yet (missing GROQ_API_KEY).',
     });
   }
+  if (!supabaseConfigured()) {
+    return res.status(503).json({
+      error: 'Chat backend not configured yet (missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).',
+    });
+  }
 
   const ip =
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
@@ -91,12 +118,29 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: 'Too many messages — take a breath and try again in a minute.' });
   }
 
-  // Validate body: { site?: string, messages: [{ role, content }] }
-  const { messages, site: siteRaw } = req.body || {};
-  const siteId = typeof siteRaw === 'string' && siteRaw ? siteRaw : DEFAULT_SITE;
-  if (!SITES[siteId]) {
-    return res.status(400).json({ error: `Unknown site "${siteId.slice(0, 40)}"` });
+  // Body: { bot?: string, messages: [{ role, content }] }
+  // `site` is accepted as a back-compat alias for `bot`.
+  const { messages, bot: botRaw, site: siteRaw } = req.body || {};
+  const botId =
+    (typeof botRaw === 'string' && botRaw) ||
+    (typeof siteRaw === 'string' && siteRaw) ||
+    DEFAULT_BOT;
+
+  let entry;
+  try {
+    entry = await loadBot(botId);
+  } catch (err) {
+    console.error('bot load error', err);
+    return res.status(502).json({ error: 'Could not load bot configuration.' });
   }
+  if (!entry) {
+    return res.status(400).json({ error: `Unknown bot "${String(botId).slice(0, 40)}"` });
+  }
+
+  if (!originAllowed(entry.bot, req.headers.origin)) {
+    return res.status(403).json({ error: 'This bot is not enabled for this website.' });
+  }
+
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages[] required' });
   }
@@ -126,7 +170,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: 'system', content: systemPromptFor(siteId) }, ...history],
+        messages: [{ role: 'system', content: entry.prompt }, ...history],
         max_tokens: 400,
         temperature: 0.5,
       }),
@@ -145,7 +189,7 @@ export default async function handler(req, res) {
     if (!reply) {
       return res.status(502).json({ error: 'Empty reply from model.' });
     }
-    return res.status(200).json({ reply, model: 'groq', site: siteId });
+    return res.status(200).json({ reply, model: 'groq', bot: botId });
   } catch (err) {
     console.error('chat handler error', err);
     return res.status(500).json({ error: 'Something went wrong.' });
