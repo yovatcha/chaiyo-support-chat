@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  // Middleware imports @supabase/ssr -> @supabase/supabase-js, which uses Node
-  // APIs (process.version) unavailable in the Edge Runtime, so it must run on
-  // the Node.js runtime. In Next.js 15.5+ that runtime is stable and enabled
-  // solely by `export const config = { runtime: 'nodejs' }` in middleware.js —
-  // no next.config flag is needed. (The old experimental.nodeMiddleware key is
-  // now unrecognized and only produced an "Invalid next.config.js" warning.)
+  // Nothing to configure: the Supabase auth middleware runs on the default Edge
+  // runtime (see middleware.js). The previous experimental.nodeMiddleware flag
+  // was removed — it was unrecognized in Next 15.5 and the Node.js middleware it
+  // enabled crashed on Vercel (MIDDLEWARE_INVOCATION_FAILED).
 };
