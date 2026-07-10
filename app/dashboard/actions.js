@@ -4,10 +4,15 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
+const DEFAULT_ACCENT = '#5e85a4';
+const HEX = /^#[0-9a-fA-F]{6}$/;
+
 // Pull the editable bot fields out of a submitted form.
 function botFields(formData) {
+  const accent = String(formData.get('accent_color') || '').trim().toLowerCase();
   return {
     bot_name: String(formData.get('bot_name') || '').trim() || 'Support bot',
+    accent_color: HEX.test(accent) ? accent : DEFAULT_ACCENT,
     persona: String(formData.get('persona') || '').trim(),
     scope: String(formData.get('scope') || '').trim(),
     fallback_contact: String(formData.get('fallback_contact') || '').trim(),

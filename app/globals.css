@@ -297,6 +297,62 @@ textarea { resize: vertical; line-height: 1.5; }
 .row button { flex: 1; }
 form.botform { margin-top: 20px; }
 
+/* Non-label field wrapper (for fields containing interactive controls) */
+.field { margin-bottom: 16px; }
+.field-label { display: block; font-size: .86rem; font-weight: 600; color: var(--fg); margin-bottom: 9px; }
+
+/* Color picker */
+.colorpicker { display: flex; flex-direction: column; gap: 12px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  cursor: pointer;
+  padding: 0;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border-strong), var(--shadow-sm);
+  transition: transform .08s ease, box-shadow .15s ease;
+  position: relative;
+}
+.swatch:hover { transform: translateY(-1px); }
+.swatch.active { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--blue); }
+.swatch.custom {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1;
+  overflow: hidden;
+  background: conic-gradient(from 0deg, #cc2b22, #e1b341, #2f9e6b, #0ea5e9, #7c5cff, #db2777, #cc2b22);
+}
+.swatch.custom input[type="color"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  cursor: pointer;
+}
+.cp-preview { display: inline-flex; align-items: center; gap: 9px; }
+.cp-bubble {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .7rem;
+  box-shadow: var(--shadow-sm);
+}
+.cp-preview code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
 /* Embed snippet */
 .embed {
   margin-top: 32px;

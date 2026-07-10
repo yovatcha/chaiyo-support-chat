@@ -39,6 +39,13 @@
   var BOT_ID =
     (script && (script.dataset.bot || script.dataset.site)) || 'portfolio';
 
+  // Accent color. data-accent="#rrggbb" wins (inline override); otherwise the
+  // bot's dashboard-chosen color is fetched from /api/bot-config on load.
+  var ACCENT = (script && script.dataset.accent) || '';
+  var CONFIG_ENDPOINT =
+    (script && script.dataset.configEndpoint) ||
+    (scriptOrigin ? scriptOrigin + '/api/bot-config' : '/api/bot-config');
+
   // UI language: data-lang="th"/"en" wins; otherwise follow the browser.
   var LANG =
     (script && script.dataset.lang) ||
@@ -59,8 +66,9 @@
   // --- theme still look right) ---------------------------------------------
   var css = [
     '.yobot-root{',
-    '  --yb-accent: var(--accent, #7c5cff);',
-    '  --yb-accent-2: var(--accent-2, #34e0d6);',
+    '  --yb-accent: var(--accent, #5e85a4);',
+    '  --yb-accent-2: var(--accent-2, #7ba0bb);',
+    '  --yb-accent-fg: var(--accent-fg, #ffffff);',
     '  --yb-fg: var(--fg, #eef1f8);',
     '  --yb-muted: var(--muted, #9aa3b8);',
     '  --yb-card: var(--card, rgba(255,255,255,0.06));',
@@ -68,7 +76,7 @@
     '  --yb-font: var(--font-body, "Inter", system-ui, sans-serif);',
     '  --yb-font-display: var(--font-display, "Space Grotesk", system-ui, sans-serif);',
     '}',
-    '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:50%;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 30px rgba(124,92,255,.45);transition:transform .2s ease}',
+    '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:50%;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .2s ease}',
     '.yobot-fab:hover{transform:translateY(-2px) scale(1.05)}',
     '.yobot-fab svg{width:26px;height:26px}',
     '.yobot-panel{position:fixed;right:22px;bottom:92px;z-index:2147483000;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));display:none;flex-direction:column;overflow:hidden;background:rgba(10,12,20,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--yb-border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.55);font-family:var(--yb-font);opacity:0;transform:translateY(12px);transition:opacity .22s ease,transform .22s ease}',
@@ -81,13 +89,13 @@
     '.yobot-mode{margin-left:auto;display:none;gap:4px;background:var(--yb-card);border:1px solid var(--yb-border);border-radius:999px;padding:3px}',
     '.yobot-mode.visible{display:flex}',
     '.yobot-mode button{border:0;background:transparent;color:var(--yb-muted);font-size:.68rem;padding:4px 10px;border-radius:999px;cursor:pointer;font-family:var(--yb-font)}',
-    '.yobot-mode button.active{background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:#fff}',
+    '.yobot-mode button.active{background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg)}',
     '.yobot-close{border:0;background:transparent;color:var(--yb-muted);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:8px}',
     '.yobot-mode:not(.visible)+.yobot-close{margin-left:auto}',
     '.yobot-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}',
     '.yobot-msg{max-width:85%;padding:10px 13px;border-radius:14px;font-size:.85rem;line-height:1.45;white-space:pre-wrap;word-break:break-word}',
     '.yobot-msg--bot{align-self:flex-start;color:var(--yb-fg);background:var(--yb-card);border:1px solid var(--yb-border);border-bottom-left-radius:4px}',
-    '.yobot-msg--user{align-self:flex-end;color:#fff;background:linear-gradient(135deg,var(--yb-accent),#5b4bff);border-bottom-right-radius:4px}',
+    '.yobot-msg--user{align-self:flex-end;color:var(--yb-accent-fg);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));border-bottom-right-radius:4px}',
     '.yobot-msg--err{border-color:rgba(255,99,99,.5);color:#ffb4b4}',
     '.yobot-msg--note{align-self:center;color:var(--yb-muted);background:transparent;border:0;font-size:.7rem;padding:0}',
     '.yobot-typing{display:inline-flex;gap:4px;align-items:center}',
@@ -98,7 +106,7 @@
     '.yobot-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--yb-border)}',
     '.yobot-form input{flex:1;background:var(--yb-card);border:1px solid var(--yb-border);border-radius:12px;padding:10px 13px;color:var(--yb-fg);font-size:.85rem;font-family:var(--yb-font);outline:none;min-width:0}',
     '.yobot-form input:focus{border-color:var(--yb-accent)}',
-    '.yobot-form button{border:0;border-radius:12px;padding:0 16px;cursor:pointer;background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:#fff;font-family:var(--yb-font-display);font-weight:600;font-size:.85rem}',
+    '.yobot-form button{border:0;border-radius:12px;padding:0 16px;cursor:pointer;background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);font-family:var(--yb-font-display);font-weight:600;font-size:.85rem}',
     '.yobot-form button:disabled{opacity:.5;cursor:default}',
     '@media (max-width:480px){.yobot-panel{right:16px;bottom:86px}.yobot-fab{right:16px;bottom:16px}}',
   ].join('\n');
@@ -108,6 +116,45 @@
     if (cls) n.className = cls;
     if (html != null) n.innerHTML = html;
     return n;
+  }
+
+  // --- accent theming ------------------------------------------------------
+  var HEX_RE = /^#[0-9a-f]{6}$/i;
+
+  function hexToRgb(h) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(h);
+    if (!m) return null;
+    var i = parseInt(m[1], 16);
+    return { r: (i >> 16) & 255, g: (i >> 8) & 255, b: i & 255 };
+  }
+  function comp(x) {
+    var s = Math.max(0, Math.min(255, Math.round(x))).toString(16);
+    return s.length === 1 ? '0' + s : s;
+  }
+  // Blend a color toward white by amt (0..1) — used for the gradient's 2nd stop.
+  function lighten(hex, amt) {
+    var c = hexToRgb(hex);
+    if (!c) return hex;
+    return '#' + comp(c.r + (255 - c.r) * amt) + comp(c.g + (255 - c.g) * amt) + comp(c.b + (255 - c.b) * amt);
+  }
+  // Pick black/white text for legibility on the accent (perceived luminance).
+  function readableOn(hex) {
+    var c = hexToRgb(hex);
+    if (!c) return '#ffffff';
+    var L = (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+    return L > 0.6 ? '#1a1b1e' : '#ffffff';
+  }
+
+  var accentNodes = [];
+  function applyAccent(color) {
+    if (!HEX_RE.test(color)) return;
+    var a2 = lighten(color, 0.18);
+    var fg = readableOn(color);
+    accentNodes.forEach(function (node) {
+      node.style.setProperty('--yb-accent', color);
+      node.style.setProperty('--yb-accent-2', a2);
+      node.style.setProperty('--yb-accent-fg', fg);
+    });
   }
 
   function init() {
@@ -165,6 +212,17 @@
     panel.appendChild(form);
     document.body.appendChild(fab);
     document.body.appendChild(panel);
+
+    // Theme the bubble + panel. Inline data-accent wins immediately; otherwise
+    // fetch the owner's dashboard-chosen color and apply it when it arrives.
+    accentNodes = [fab, panel];
+    if (ACCENT) applyAccent(ACCENT);
+    fetch(CONFIG_ENDPOINT + '?bot=' + encodeURIComponent(BOT_ID))
+      .then(function (r) { return r.json(); })
+      .then(function (cfg) {
+        if (!ACCENT && cfg && cfg.accent_color) applyAccent(cfg.accent_color);
+      })
+      .catch(function () {});
 
     var history = [];
     var mode = 'groq';
