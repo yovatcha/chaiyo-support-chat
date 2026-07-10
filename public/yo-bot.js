@@ -39,9 +39,15 @@
   var BOT_ID =
     (script && (script.dataset.bot || script.dataset.site)) || 'portfolio';
 
-  // Accent color. data-accent="#rrggbb" wins (inline override); otherwise the
-  // bot's dashboard-chosen color is fetched from /api/bot-config on load.
+  // Display theming. Inline data-* wins (per-embed override); otherwise the
+  // bot's dashboard-chosen values are fetched from /api/bot-config on load.
+  //   data-accent / data-bg / data-font = "#rrggbb"
+  //   data-title / data-description      = header text
   var ACCENT = (script && script.dataset.accent) || '';
+  var BG = (script && script.dataset.bg) || '';
+  var FONT = (script && script.dataset.font) || '';
+  var TITLE_OVERRIDE = (script && script.dataset.title) || '';
+  var DESC_OVERRIDE = (script && script.dataset.description) || '';
   var CONFIG_ENDPOINT =
     (script && script.dataset.configEndpoint) ||
     (scriptOrigin ? scriptOrigin + '/api/bot-config' : '/api/bot-config');
@@ -79,7 +85,7 @@
     '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:50%;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .2s ease}',
     '.yobot-fab:hover{transform:translateY(-2px) scale(1.05)}',
     '.yobot-fab svg{width:26px;height:26px}',
-    '.yobot-panel{position:fixed;right:22px;bottom:92px;z-index:2147483000;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));display:none;flex-direction:column;overflow:hidden;background:rgba(10,12,20,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--yb-border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.55);font-family:var(--yb-font);opacity:0;transform:translateY(12px);transition:opacity .22s ease,transform .22s ease}',
+    '.yobot-panel{position:fixed;right:22px;bottom:92px;z-index:2147483000;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));display:none;flex-direction:column;overflow:hidden;background:var(--yb-bg, rgba(10,12,20,.94));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--yb-border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.55);font-family:var(--yb-font);opacity:0;transform:translateY(12px);transition:opacity .22s ease,transform .22s ease}',
     '.yobot-panel.open{display:flex}',
     '.yobot-panel.shown{opacity:1;transform:translateY(0)}',
     '.yobot-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--yb-border)}',
@@ -145,7 +151,18 @@
     return L > 0.6 ? '#1a1b1e' : '#ffffff';
   }
 
+  function rgba(hex, a) {
+    var c = hexToRgb(hex);
+    return c ? 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')' : hex;
+  }
+  // Perceived luminance 0..1 — a light panel needs dark-tinted card/border.
+  function luminance(hex) {
+    var c = hexToRgb(hex);
+    return c ? (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255 : 0;
+  }
+
   var accentNodes = [];
+  var themeNodes = [];
   function applyAccent(color) {
     if (!HEX_RE.test(color)) return;
     var a2 = lighten(color, 0.18);
@@ -154,6 +171,24 @@
       node.style.setProperty('--yb-accent', color);
       node.style.setProperty('--yb-accent-2', a2);
       node.style.setProperty('--yb-accent-fg', fg);
+    });
+  }
+  // Panel background — also retint the card/border so light themes stay legible.
+  function applyBg(color) {
+    if (!HEX_RE.test(color)) return;
+    var light = luminance(color) > 0.6;
+    themeNodes.forEach(function (node) {
+      node.style.setProperty('--yb-bg', color);
+      node.style.setProperty('--yb-card', light ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)');
+      node.style.setProperty('--yb-border', light ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.14)');
+    });
+  }
+  // Message + heading text color; muted derives from it.
+  function applyFont(color) {
+    if (!HEX_RE.test(color)) return;
+    themeNodes.forEach(function (node) {
+      node.style.setProperty('--yb-fg', color);
+      node.style.setProperty('--yb-muted', rgba(color, 0.6));
     });
   }
 
@@ -176,10 +211,10 @@
     head.appendChild(el('span', 'yobot-head__dot'));
     var titleWrap = el('div', '');
     var title = el('div', 'yobot-head__title');
-    title.textContent = BOT_NAME;
+    title.textContent = TITLE_OVERRIDE || BOT_NAME;
     titleWrap.appendChild(title);
     var subEl = el('div', 'yobot-head__sub');
-    subEl.textContent = SUBTITLE;
+    subEl.textContent = DESC_OVERRIDE || SUBTITLE;
     titleWrap.appendChild(subEl);
     head.appendChild(titleWrap);
 
@@ -213,14 +248,23 @@
     document.body.appendChild(fab);
     document.body.appendChild(panel);
 
-    // Theme the bubble + panel. Inline data-accent wins immediately; otherwise
-    // fetch the owner's dashboard-chosen color and apply it when it arrives.
+    // Theme the bubble + panel and label the header. Inline data-* wins
+    // immediately; otherwise fetch the owner's dashboard-chosen values and apply
+    // whatever wasn't overridden inline when they arrive.
     accentNodes = [fab, panel];
+    themeNodes = [panel];
     if (ACCENT) applyAccent(ACCENT);
+    if (BG) applyBg(BG);
+    if (FONT) applyFont(FONT);
     fetch(CONFIG_ENDPOINT + '?bot=' + encodeURIComponent(BOT_ID))
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
-        if (!ACCENT && cfg && cfg.accent_color) applyAccent(cfg.accent_color);
+        if (!cfg) return;
+        if (!ACCENT && cfg.accent_color) applyAccent(cfg.accent_color);
+        if (!BG && cfg.bg_color) applyBg(cfg.bg_color);
+        if (!FONT && cfg.font_color) applyFont(cfg.font_color);
+        if (!TITLE_OVERRIDE && cfg.title) title.textContent = cfg.title;
+        if (!DESC_OVERRIDE && cfg.description) subEl.textContent = cfg.description;
       })
       .catch(function () {});
 

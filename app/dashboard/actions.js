@@ -5,14 +5,26 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
 const DEFAULT_ACCENT = '#5e85a4';
+const DEFAULT_BG = '#0a0c14';
+const DEFAULT_FONT = '#eef1f8';
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+// Read a hex color from the form, falling back to a default if it's not a
+// valid 6-digit hex.
+function hexField(formData, name, fallback) {
+  const v = String(formData.get(name) || '').trim().toLowerCase();
+  return HEX.test(v) ? v : fallback;
+}
 
 // Pull the editable bot fields out of a submitted form.
 function botFields(formData) {
-  const accent = String(formData.get('accent_color') || '').trim().toLowerCase();
   return {
     bot_name: String(formData.get('bot_name') || '').trim() || 'Support bot',
-    accent_color: HEX.test(accent) ? accent : DEFAULT_ACCENT,
+    title: String(formData.get('title') || '').trim().slice(0, 60),
+    description: String(formData.get('description') || '').trim().slice(0, 120),
+    accent_color: hexField(formData, 'accent_color', DEFAULT_ACCENT),
+    bg_color: hexField(formData, 'bg_color', DEFAULT_BG),
+    font_color: hexField(formData, 'font_color', DEFAULT_FONT),
     persona: String(formData.get('persona') || '').trim(),
     scope: String(formData.get('scope') || '').trim(),
     fallback_contact: String(formData.get('fallback_contact') || '').trim(),

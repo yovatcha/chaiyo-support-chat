@@ -1,5 +1,6 @@
 // Public bot-config endpoint — serves the embed widget's *display* settings
-// (name + accent color) so the chat bubble can theme itself on load.
+// (name, header title/description, accent/background/font colors) so the chat
+// bubble can theme + label itself on load.
 //
 // The widget GETs /api/bot-config?bot=<public_id> cross-origin, so this mirrors
 // the CORS handling of /api/chat. It returns only non-sensitive display fields —
@@ -13,7 +14,11 @@ export const dynamic = 'force-dynamic';
 
 const DEFAULT_BOT = 'portfolio';
 const DEFAULT_ACCENT = '#5e85a4';
+const DEFAULT_BG = '#0a0c14';
+const DEFAULT_FONT = '#eef1f8';
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+const hex = (v, fallback) => (HEX.test(v || '') ? v : fallback);
 
 function corsHeaders(origin) {
   const h = {
@@ -64,7 +69,11 @@ export async function GET(request) {
     {
       bot: botId,
       bot_name: bot.bot_name,
-      accent_color: HEX.test(bot.accent_color || '') ? bot.accent_color : DEFAULT_ACCENT,
+      title: (bot.title || '').trim(),
+      description: (bot.description || '').trim(),
+      accent_color: hex(bot.accent_color, DEFAULT_ACCENT),
+      bg_color: hex(bot.bg_color, DEFAULT_BG),
+      font_color: hex(bot.font_color, DEFAULT_FONT),
     },
     200,
     origin

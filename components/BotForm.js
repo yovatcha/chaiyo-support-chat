@@ -1,7 +1,7 @@
 // Reusable bot create/edit form. Server component — just renders fields bound
 // to a server action passed in by the page.
 
-import ColorPicker from '@/components/ColorPicker';
+import Appearance from '@/components/Appearance';
 
 export default function BotForm({ action, bot = {}, submitLabel }) {
   return (
@@ -10,11 +10,6 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
         Bot name
         <input name="bot_name" defaultValue={bot.bot_name || ''} placeholder="Acme Support" />
       </label>
-
-      <div className="field">
-        <span className="field-label">Chat colour — the accent for this bot&apos;s chat bubble &amp; icon</span>
-        <ColorPicker defaultValue={bot.accent_color} />
-      </div>
 
       <label>
         Persona — who the bot is and its job
@@ -66,6 +61,8 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
           placeholder="https://acme.com, https://www.acme.com"
         />
       </label>
+
+      <Appearance bot={bot} />
 
       <button type="submit" className="btn">{submitLabel}</button>
     </form>
