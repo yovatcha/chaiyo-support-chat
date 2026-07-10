@@ -13,7 +13,12 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="shell">
       <header className="topbar">
-        <Link href="/dashboard" className="brand">🤖 Yo-bot</Link>
+        <Link href="/dashboard" className="brand">
+          <span className="brandmark" aria-hidden="true">
+            <span className="s1" /><span className="s2" /><span className="s3" /><span className="s4" />
+          </span>
+          Yo-bot
+        </Link>
         <div className="spacer" />
         <span className="muted small">{user.email}</span>
         <form action={signOut}>
