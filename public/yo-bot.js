@@ -48,6 +48,8 @@
   var FONT = (script && script.dataset.font) || '';
   var TITLE_OVERRIDE = (script && script.dataset.title) || '';
   var DESC_OVERRIDE = (script && script.dataset.description) || '';
+  var GREETING_OVERRIDE = (script && script.dataset.greeting) || '';
+  var PLACEHOLDER_OVERRIDE = (script && script.dataset.placeholder) || '';
   var CONFIG_ENDPOINT =
     (script && script.dataset.configEndpoint) ||
     (scriptOrigin ? scriptOrigin + '/api/bot-config' : '/api/bot-config');
@@ -58,15 +60,14 @@
     ((navigator.language || '').toLowerCase().indexOf('th') === 0 ? 'th' : 'en');
   var TH = LANG === 'th';
 
+  // Neutral, name-based fallbacks. The bot owner's dashboard copy (greeting /
+  // placeholder / description) overrides these once /api/bot-config loads, so
+  // these only show when nothing has been customized.
   var GREETING = TH
-    ? 'สวัสดีครับ! ผม ' +
-      BOT_NAME +
-      ' 🤖 ถามอะไรเกี่ยวกับไชโยได้เลย — งาน สกิล โปรเจกต์ หรือช่องทางติดต่อครับ'
-    : "Hi! I'm " +
-      BOT_NAME +
-      ' 🤖 — ask me anything about Chaiyo: his work, skills, projects, or how to reach him.';
-  var SUBTITLE = TH ? 'AI support · ถามเรื่องไชโยได้เลย' : 'AI support · ask about Chaiyo';
-  var PLACEHOLDER = TH ? 'ถามเรื่องไชโย…' : 'Ask about Chaiyo…';
+    ? 'สวัสดีครับ! ผม ' + BOT_NAME + ' 🤖 มีอะไรให้ช่วยไหมครับ'
+    : "Hi! I'm " + BOT_NAME + ' 🤖 How can I help you today?';
+  var SUBTITLE = TH ? 'ผู้ช่วย AI · ถามได้เลย' : 'AI support · ask me anything';
+  var PLACEHOLDER = TH ? 'พิมพ์ข้อความ…' : 'Type a message…';
 
   // --- styles (all values fall back so host pages without the portfolio ---
   // --- theme still look right) ---------------------------------------------
@@ -235,7 +236,7 @@
     var log = el('div', 'yobot-log');
     var form = el('form', 'yobot-form');
     var input = el('input');
-    input.placeholder = PLACEHOLDER;
+    input.placeholder = PLACEHOLDER_OVERRIDE || PLACEHOLDER;
     input.maxLength = 500;
     var send = el('button', '', 'Send');
     send.type = 'submit';
@@ -256,6 +257,13 @@
     if (ACCENT) applyAccent(ACCENT);
     if (BG) applyBg(BG);
     if (FONT) applyFont(FONT);
+
+    // The opening message: inline override wins; else the fallback below, until
+    // the owner's config arrives. greetingEl (set on first open) is patched in
+    // place if the greeting was already shown by then.
+    var greetingText = GREETING_OVERRIDE || GREETING;
+    var greetingEl = null;
+
     fetch(CONFIG_ENDPOINT + '?bot=' + encodeURIComponent(BOT_ID))
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
@@ -265,6 +273,11 @@
         if (!FONT && cfg.font_color) applyFont(cfg.font_color);
         if (!TITLE_OVERRIDE && cfg.title) title.textContent = cfg.title;
         if (!DESC_OVERRIDE && cfg.description) subEl.textContent = cfg.description;
+        if (!PLACEHOLDER_OVERRIDE && cfg.placeholder) input.placeholder = cfg.placeholder;
+        if (!GREETING_OVERRIDE && cfg.greeting) {
+          greetingText = cfg.greeting;
+          if (greetingEl) greetingEl.textContent = cfg.greeting;
+        }
       })
       .catch(function () {});
 
@@ -285,7 +298,7 @@
       requestAnimationFrame(function () {
         panel.classList.add('shown');
       });
-      if (!log.childElementCount) addMsg('yobot-msg--bot', GREETING);
+      if (!log.childElementCount) greetingEl = addMsg('yobot-msg--bot', greetingText);
       input.focus();
     }
     function close() {

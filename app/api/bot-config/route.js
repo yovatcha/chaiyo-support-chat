@@ -71,6 +71,8 @@ export async function GET(request) {
       bot_name: bot.bot_name,
       title: (bot.title || '').trim(),
       description: (bot.description || '').trim(),
+      greeting: (bot.greeting || '').trim(),
+      placeholder: (bot.placeholder || '').trim(),
       accent_color: hex(bot.accent_color, DEFAULT_ACCENT),
       bg_color: hex(bot.bg_color, DEFAULT_BG),
       font_color: hex(bot.font_color, DEFAULT_FONT),

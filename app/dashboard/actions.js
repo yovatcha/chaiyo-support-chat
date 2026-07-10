@@ -22,6 +22,8 @@ function botFields(formData) {
     bot_name: String(formData.get('bot_name') || '').trim() || 'Support bot',
     title: String(formData.get('title') || '').trim().slice(0, 60),
     description: String(formData.get('description') || '').trim().slice(0, 120),
+    greeting: String(formData.get('greeting') || '').trim().slice(0, 500),
+    placeholder: String(formData.get('placeholder') || '').trim().slice(0, 80),
     accent_color: hexField(formData, 'accent_color', DEFAULT_ACCENT),
     bg_color: hexField(formData, 'bg_color', DEFAULT_BG),
     font_color: hexField(formData, 'font_color', DEFAULT_FONT),

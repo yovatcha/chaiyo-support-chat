@@ -68,6 +68,8 @@ function rgba(hex, a) {
 export default function Appearance({ bot = {} }) {
   const [title, setTitle] = useState(bot.title || '');
   const [description, setDescription] = useState(bot.description || '');
+  const [greeting, setGreeting] = useState(bot.greeting || '');
+  const [placeholder, setPlaceholder] = useState(bot.placeholder || '');
   const [accent, setAccent] = useState(HEX.test(bot.accent_color || '') ? bot.accent_color : DEFAULTS.accent);
   const [bg, setBg] = useState(HEX.test(bot.bg_color || '') ? bot.bg_color : DEFAULTS.bg);
   const [font, setFont] = useState(HEX.test(bot.font_color || '') ? bot.font_color : DEFAULTS.font);
@@ -82,6 +84,8 @@ export default function Appearance({ bot = {} }) {
 
   const headTitle = title.trim() || bot.bot_name || 'Support bot';
   const headSub = description.trim() || 'AI support · ask me anything';
+  const greetingText = greeting.trim() || `Hi! I'm ${bot.bot_name || 'your assistant'} 🤖 How can I help?`;
+  const placeholderText = placeholder.trim() || 'Type a message…';
 
   return (
     <section className="appearance">
@@ -118,6 +122,29 @@ export default function Appearance({ bot = {} }) {
             />
           </label>
 
+          <label>
+            Opening message — the first thing the bot says
+            <textarea
+              name="greeting"
+              rows={3}
+              maxLength={500}
+              value={greeting}
+              onChange={(e) => setGreeting(e.target.value)}
+              placeholder={`Hi! I'm ${bot.bot_name || 'your assistant'} 🤖 How can I help?`}
+            />
+          </label>
+
+          <label>
+            Input placeholder — the greyed hint in the message box
+            <input
+              name="placeholder"
+              maxLength={80}
+              value={placeholder}
+              onChange={(e) => setPlaceholder(e.target.value)}
+              placeholder="Type a message…"
+            />
+          </label>
+
           <div className="field">
             <span className="field-label">Accent — chat bubble, icon &amp; Send button</span>
             <ColorPicker value={accent} onChange={setAccent} presets={ACCENT_PRESETS} />
@@ -146,7 +173,7 @@ export default function Appearance({ bot = {} }) {
             </div>
             <div className="cp-log">
               <div className="cp-msg cp-msg--bot" style={{ background: card, color: font, borderColor: border }}>
-                Hi! Ask me anything.
+                {greetingText}
               </div>
               <div
                 className="cp-msg cp-msg--user"
@@ -157,7 +184,7 @@ export default function Appearance({ bot = {} }) {
             </div>
             <div className="cp-form" style={{ borderColor: border }}>
               <span className="cp-input" style={{ background: card, borderColor: border, color: muted }}>
-                Type a message…
+                {placeholderText}
               </span>
               <span
                 className="cp-send"
