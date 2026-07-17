@@ -83,9 +83,17 @@
     '  --yb-font: var(--font-body, "Inter", system-ui, sans-serif);',
     '  --yb-font-display: var(--font-display, "Space Grotesk", system-ui, sans-serif);',
     '}',
-    '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:50%;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .2s ease}',
-    '.yobot-fab:hover{transform:translateY(-2px) scale(1.05)}',
+    '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:50%;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .2s ease,background .3s ease,color .3s ease,opacity .3s ease}',
+    '.yobot-fab:not(.yobot-fab--loading):hover{transform:translateY(-2px) scale(1.05)}',
     '.yobot-fab svg{width:26px;height:26px}',
+    // Until /api/bot-config answers we do not know the owner's accent, so the
+    // bubble waits in neutral grey rather than flashing the default blue.
+    '.yobot-fab--loading{background:linear-gradient(135deg,#d7d9de,#c3c6cd);color:#8b8f98;border-color:rgba(0,0,0,.08);cursor:default;pointer-events:none;animation:yobot-fab-pulse 1.4s ease-in-out infinite}',
+    '@keyframes yobot-fab-pulse{0%,100%{opacity:.55}50%{opacity:.9}}',
+    // …then it pops in wearing the real theme.
+    '.yobot-fab--ready{animation:yobot-fab-pop .32s cubic-bezier(.34,1.56,.64,1)}',
+    '@keyframes yobot-fab-pop{0%{transform:scale(.82)}60%{transform:scale(1.08)}100%{transform:scale(1)}}',
+    '@media (prefers-reduced-motion:reduce){.yobot-fab--loading,.yobot-fab--ready{animation:none}}',
     '.yobot-panel{position:fixed;right:22px;bottom:92px;z-index:2147483000;width:min(380px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));display:none;flex-direction:column;overflow:hidden;background:var(--yb-bg, rgba(10,12,20,.94));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--yb-border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.55);font-family:var(--yb-font);opacity:0;transform:translateY(12px);transition:opacity .22s ease,transform .22s ease}',
     '.yobot-panel.open{display:flex}',
     '.yobot-panel.shown{opacity:1;transform:translateY(0)}',
@@ -198,8 +206,9 @@
     style.textContent = css;
     document.head.appendChild(style);
 
-    var fab = el('button', 'yobot-root yobot-fab');
+    var fab = el('button', 'yobot-root yobot-fab yobot-fab--loading');
     fab.type = 'button';
+    fab.disabled = true;
     fab.setAttribute('aria-label', 'Open AI chat about Chaiyo');
     fab.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3C7.03 3 3 6.58 3 11c0 2.05.9 3.92 2.37 5.33-.13 1.05-.53 2.3-1.37 3.67 2.02-.24 3.55-.9 4.61-1.53.75.17 1.55.28 2.39.28 4.97 0 9-3.58 9-8s-4.03-8-9-8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11" r="1.1" fill="currentColor"/><circle cx="12" cy="11" r="1.1" fill="currentColor"/><circle cx="15.4" cy="11" r="1.1" fill="currentColor"/></svg>';
@@ -264,6 +273,23 @@
     var greetingText = GREETING_OVERRIDE || GREETING;
     var greetingEl = null;
 
+    // Hand the bubble over to the user once the theme is settled. Runs on
+    // success, on failure (we fall back to the defaults) and on the timeout
+    // below, so a slow or dead config endpoint can never strand it in grey.
+    var ready = false;
+    function markReady() {
+      if (ready) return;
+      ready = true;
+      clearTimeout(readyTimer);
+      fab.classList.remove('yobot-fab--loading');
+      fab.classList.add('yobot-fab--ready');
+      fab.disabled = false;
+    }
+    var readyTimer = setTimeout(markReady, 4000);
+    // An inline data-accent already tells us how the bubble should look, so it
+    // has no reason to wait on the network.
+    if (ACCENT) markReady();
+
     fetch(CONFIG_ENDPOINT + '?bot=' + encodeURIComponent(BOT_ID))
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
@@ -279,7 +305,8 @@
           if (greetingEl) greetingEl.textContent = cfg.greeting;
         }
       })
-      .catch(function () {});
+      .catch(function () {})
+      .then(markReady);
 
     var history = [];
     var mode = 'groq';
