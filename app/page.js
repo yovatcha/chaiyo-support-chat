@@ -24,7 +24,7 @@ export default function Home() {
           Create a bot, paste what it should know, and drop one script tag on
           your site. That&apos;s it.
         </p>
-        <Link href="/login" className="btn big">Create your bot</Link>
+        <Link href="/signup" className="btn big">Create your bot</Link>
         <p className="muted small">
           The chat bubble in the corner is a live demo — it&apos;s the portfolio bot.
         </p>
