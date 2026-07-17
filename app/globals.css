@@ -34,6 +34,9 @@
   --shadow-lg: 0 24px 60px -24px rgba(26, 27, 30, 0.28);
 
   --font: var(--font-sen), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  /* Height of the sticky topbar — sticky content below it must clear this. */
+  --topbar-h: 62px;
 }
 
 * { box-sizing: border-box; }
@@ -142,7 +145,8 @@ button.link.danger:hover { color: #fff; background: var(--red); }
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 28px;
+  height: var(--topbar-h);
+  padding: 0 28px;
   border-bottom: 1px solid var(--border);
   background: rgba(250, 246, 239, 0.8);
   backdrop-filter: saturate(1.4) blur(8px);
@@ -403,7 +407,7 @@ form.botform { margin-top: 20px; }
 .appearance-controls .field { margin-bottom: 0; }
 
 /* Live preview — a miniature of the embed widget's chat panel */
-.appearance-preview { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.appearance-preview { position: sticky; top: calc(var(--topbar-h) + 16px); display: flex; flex-direction: column; gap: 10px; }
 .cp-panel {
   border: 1px solid;
   border-radius: 16px;
