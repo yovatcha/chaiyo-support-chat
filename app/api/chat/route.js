@@ -9,7 +9,7 @@ import { getBotByPublicId, supabaseConfigured } from '@/lib/bots';
 
 export const dynamic = 'force-dynamic';
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_URL = process.env.GROQ_URL || 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = process.env.CHAT_MODEL || 'llama-3.3-70b-versatile';
 // Groq TPM limits are per model, so a second model is a fresh quota bucket.
 const FALLBACK_MODEL = process.env.CHAT_FALLBACK_MODEL || 'llama-3.1-8b-instant';
