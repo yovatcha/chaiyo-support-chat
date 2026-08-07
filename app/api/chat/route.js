@@ -11,6 +11,9 @@ export const dynamic = 'force-dynamic';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = process.env.CHAT_MODEL || 'llama-3.3-70b-versatile';
+// Groq TPM limits are per model, so a second model is a fresh quota bucket.
+const FALLBACK_MODEL = process.env.CHAT_FALLBACK_MODEL || 'llama-3.1-8b-instant';
+const MAX_RETRY_WAIT_MS = 6_000;
 const DEFAULT_BOT = 'portfolio';
 
 const MAX_MESSAGE_CHARS = 500;
@@ -68,6 +71,29 @@ async function loadBot(publicId) {
   botCache.set(publicId, entry);
   return entry;
 }
+
+function callGroq(model, messages) {
+  return fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({ model, messages, max_tokens: 400, temperature: 0.5 }),
+  });
+}
+
+// Wait suggested by a 429: Retry-After header, else "try again in Xs" in the
+// body Groq sends. Returns milliseconds, or null if neither is present.
+function retryWaitMs(res, bodyText) {
+  const header = Number(res.headers.get('retry-after'));
+  if (Number.isFinite(header) && header > 0) return header * 1000;
+  const m = /try again in (\d+(?:\.\d+)?)(m?s)/i.exec(bodyText || '');
+  if (m) return m[2].toLowerCase() === 'ms' ? Number(m[1]) : Number(m[1]) * 1000;
+  return null;
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function originAllowed(bot, origin) {
   const list = bot.allowed_origins || [];
@@ -138,21 +164,38 @@ export async function POST(request) {
     return json({ error: 'last message must be from user' }, 400, origin);
   }
 
-  try {
-    const groqRes = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: 'system', content: entry.prompt }, ...history],
-        max_tokens: 400,
-        temperature: 0.5,
-      }),
-    });
+  const chatMessages = [{ role: 'system', content: entry.prompt }, ...history];
 
+  try {
+    let model = MODEL;
+    let groqRes = await callGroq(model, chatMessages);
+
+    // 429 = per-model TPM quota exhausted. Retry the primary once if the
+    // suggested wait is short, then fall back to a model with its own quota.
+    if (groqRes.status === 429) {
+      const bodyText = await groqRes.text().catch(() => '');
+      console.error('groq error', groqRes.status, bodyText);
+      const wait = retryWaitMs(groqRes, bodyText);
+      if (wait !== null && wait <= MAX_RETRY_WAIT_MS) {
+        await sleep(wait);
+        groqRes = await callGroq(model, chatMessages);
+      }
+      if (groqRes.status === 429) {
+        model = FALLBACK_MODEL;
+        groqRes = await callGroq(model, chatMessages);
+      }
+    }
+
+    if (groqRes.status === 429) {
+      console.error('groq error', groqRes.status, await groqRes.text().catch(() => ''));
+      return new Response(
+        JSON.stringify({ error: 'The assistant is busy right now — please try again in a few seconds.' }),
+        {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '10', ...corsHeaders(origin) },
+        }
+      );
+    }
     if (!groqRes.ok) {
       console.error('groq error', groqRes.status, await groqRes.text().catch(() => ''));
       return json({ error: 'The model is unavailable right now — please try again shortly.' }, 502, origin);
@@ -163,7 +206,7 @@ export async function POST(request) {
     if (!reply) {
       return json({ error: 'Empty reply from model.' }, 502, origin);
     }
-    return json({ reply, model: 'groq', bot: botId }, 200, origin);
+    return json({ reply, model, bot: botId }, 200, origin);
   } catch (err) {
     console.error('chat handler error', err);
     return json({ error: 'Something went wrong.' }, 500, origin);

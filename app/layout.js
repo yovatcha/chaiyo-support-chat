@@ -1,11 +1,21 @@
-import { Sen } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const sen = Sen({
+// Lumen Sans is proprietary; Inter is the documented open-source substitute —
+// same geometric proportions, run at modest weights (400 body / 500 display).
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600'],
   display: 'swap',
-  variable: '--font-sen',
+  variable: '--font-sans',
+});
+
+// The system's only second voice — mono for the embed / code captions.
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  display: 'swap',
+  variable: '--font-mono',
 });
 
 export const metadata = {
@@ -15,7 +25,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={sen.variable}>
+    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

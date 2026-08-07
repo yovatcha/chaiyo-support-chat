@@ -375,12 +375,21 @@
       var endpoint =
         mode === 'mamba' && MAMBA_ENDPOINT ? MAMBA_ENDPOINT : API_ENDPOINT;
 
-      fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bot: BOT_ID, messages: history.slice(-8) }),
-      })
-        .then(function (res) {
+      var attempt = function (canRetry) {
+        return fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot: BOT_ID, messages: history.slice(-8) }),
+        }).then(function (res) {
+          if (res.status === 429 && canRetry) {
+            var wait = parseInt(res.headers.get('Retry-After'), 10);
+            wait = (wait > 0 && wait <= 15 ? wait : 10) * 1000;
+            return new Promise(function (resolve) {
+              setTimeout(function () {
+                resolve(attempt(false));
+              }, wait);
+            });
+          }
           return res
             .json()
             .catch(function () {
@@ -398,7 +407,10 @@
                 history.push({ role: 'assistant', content: data.reply });
               }
             });
-        })
+        });
+      };
+
+      attempt(true)
         .catch(function () {
           typing.remove();
           addMsg(
