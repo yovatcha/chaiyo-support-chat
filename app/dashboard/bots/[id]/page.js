@@ -4,19 +4,35 @@ import { createClient } from '@/lib/supabase/server';
 import { updateBot, deleteBot } from '../../actions';
 import BotForm from '@/components/BotForm';
 import CopyEmbed from '@/components/CopyEmbed';
+import DeleteBotButton from '@/components/DeleteBotButton';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function EditBotPage({ params, searchParams }) {
   const { id } = await params;
   const sp = await searchParams;
+  if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
-  const { data: bot } = await supabase.from('bots').select('*').eq('id', id).single();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) notFound(); // layout redirects; this just stops the query
+
+  const { data: bot } = await supabase
+    .from('bots')
+    .select('*')
+    .eq('id', id)
+    .eq('owner', user.id)
+    .maybeSingle();
   if (!bot) notFound();
 
   // Build the embed origin from the incoming request.
   const h = await headers();
   const host = h.get('x-forwarded-host') || h.get('host');
-  const proto = h.get('x-forwarded-proto') || 'https';
+  const proto =
+    h.get('x-forwarded-proto') ||
+    (host && (host.startsWith('localhost') || host.startsWith('127.0.0.1')) ? 'http' : 'https');
   const origin = host ? `${proto}://${host}` : '';
 
   return (
@@ -29,9 +45,9 @@ export default async function EditBotPage({ params, searchParams }) {
 
       <CopyEmbed publicId={bot.public_id} origin={origin} botName={bot.bot_name} />
 
-      <form action={deleteBot.bind(null, id)} className="danger">
-        <button className="link danger">Delete this bot</button>
-      </form>
+      <div className="danger">
+        <DeleteBotButton action={deleteBot.bind(null, id)} botName={bot.bot_name} />
+      </div>
     </div>
   );
 }

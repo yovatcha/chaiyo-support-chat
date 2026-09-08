@@ -2,13 +2,20 @@
 // to a server action passed in by the page.
 
 import Appearance from '@/components/Appearance';
+import SubmitButton from '@/components/SubmitButton';
+import { LIMITS } from '@/lib/bot-limits';
 
 export default function BotForm({ action, bot = {}, submitLabel }) {
   return (
     <form action={action} className="botform">
       <label>
         Bot name
-        <input name="bot_name" defaultValue={bot.bot_name || ''} placeholder="Acme Support" />
+        <input
+          name="bot_name"
+          defaultValue={bot.bot_name || ''}
+          placeholder="Acme Support"
+          maxLength={LIMITS.bot_name}
+        />
       </label>
 
       <label>
@@ -17,6 +24,7 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
           name="persona"
           rows={4}
           required
+          maxLength={LIMITS.persona}
           defaultValue={bot.persona || ''}
           placeholder="You are Acme's support assistant. Answer questions about Acme's products, plans, and account help. Be friendly and speak in first person."
         />
@@ -27,6 +35,7 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
         <input
           name="scope"
           required
+          maxLength={LIMITS.scope}
           defaultValue={bot.scope || ''}
           placeholder="questions about Acme — products, pricing, and support"
         />
@@ -37,17 +46,19 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
         <input
           name="fallback_contact"
           required
+          maxLength={LIMITS.fallback_contact}
           defaultValue={bot.fallback_contact || ''}
           placeholder="email support@acme.com"
         />
       </label>
 
       <label>
-        Knowledge — everything the bot should know
+        Knowledge — everything the bot should know (up to {LIMITS.knowledge.toLocaleString()} characters)
         <textarea
           name="knowledge"
           rows={14}
           required
+          maxLength={LIMITS.knowledge}
           defaultValue={bot.knowledge || ''}
           placeholder="Paste your FAQ, docs, product details, hours, policies… Plain text is fine."
         />
@@ -64,7 +75,7 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
 
       <Appearance bot={bot} />
 
-      <button type="submit" className="btn">{submitLabel}</button>
+      <SubmitButton pendingLabel="Saving…">{submitLabel}</SubmitButton>
     </form>
   );
 }

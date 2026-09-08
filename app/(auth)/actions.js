@@ -2,7 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { siteOrigin } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import { siteOrigin, RECOVERY_COOKIE } from '@/lib/auth';
 
 const MIN_PASSWORD = 8;
 
@@ -115,9 +116,12 @@ export async function updatePassword(formData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // The recovery link is what grants the session used here. No session means
-  // the link was never followed, or it expired.
-  if (!user) {
+  // Only a session that arrived through a recovery link may set a password
+  // without knowing the old one. The auth callback sets this cookie; an
+  // ordinary login session (or a stolen cookie) does not carry it.
+  const jar = await cookies();
+  const viaRecovery = jar.get(RECOVERY_COOKIE)?.value === '1';
+  if (!user || !viaRecovery) {
     back('/auth-error', {
       reason: 'Your reset link has expired. Request a new one.',
     });
@@ -126,5 +130,6 @@ export async function updatePassword(formData) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) back('/reset-password', { error: error.message });
 
+  jar.delete(RECOVERY_COOKIE);
   back('/login', { notice: 'Password updated. Sign in with your new password.' });
 }

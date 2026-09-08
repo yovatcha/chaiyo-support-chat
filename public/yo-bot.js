@@ -1,12 +1,12 @@
 /*!
- * Yo-bot — embeddable AI support chat about Chaiyo.
+ * Yo-bot — embeddable AI support chat widget.
  *
  * Embed on ANY website with one line:
- *   <script src="https://YOUR-PORTFOLIO-DOMAIN/yo-bot.js" defer></script>
+ *   <script src="https://YOUR-CHAT-DOMAIN/yo-bot.js" data-bot="bot_xxxxxxxxxxxx" defer></script>
  *
- * Optional attributes:
- *   data-bot="<public-id>"                    which bot to load (its id in
- *                                             the platform dashboard / DB)
+ * Attributes:
+ *   data-bot="<public-id>"                    REQUIRED — which bot to load (from
+ *                                             the dashboard's embed snippet)
  *   data-site="<public-id>"                   back-compat alias for data-bot
  *   data-endpoint="https://…/api/chat"        override the chat API URL
  *   data-mamba-endpoint="https://…/chat"      enable the "My Mamba" toggle
@@ -22,41 +22,57 @@
 (function () {
   'use strict';
 
+  // Loading the script twice (two tags, a tag manager re-inject, a SPA
+  // re-mount) must not produce two bubbles.
+  if (window.__yobotLoaded) return;
+  window.__yobotLoaded = true;
+
   // --- config from our own <script> tag -----------------------------------
+  // document.currentScript is null when the tag was injected dynamically
+  // (tag managers, some bundlers), so fall back to finding our own tag.
   var script = document.currentScript;
+  if (!script) {
+    script =
+      document.querySelector('script[data-bot]') ||
+      document.querySelector('script[data-site]') ||
+      document.querySelector('script[src*="yo-bot.js"]');
+  }
+  var ds = (script && script.dataset) || {};
   var scriptOrigin = '';
   try {
-    if (script && script.src) scriptOrigin = new URL(script.src).origin;
+    if (script && script.src) scriptOrigin = new URL(script.src, location.href).origin;
   } catch (e) {}
 
   var API_ENDPOINT =
-    (script && script.dataset.endpoint) ||
-    (scriptOrigin ? scriptOrigin + '/api/chat' : '/api/chat');
-  var MAMBA_ENDPOINT = (script && script.dataset.mambaEndpoint) || '';
-  var BOT_NAME = (script && script.dataset.botName) || 'Yo-bot';
-  // Which bot to talk to — its public id in the platform DB.
-  // data-bot is the platform attribute; data-site is a back-compat alias.
-  var BOT_ID =
-    (script && (script.dataset.bot || script.dataset.site)) || 'portfolio';
+    ds.endpoint || (scriptOrigin ? scriptOrigin + '/api/chat' : '/api/chat');
+  var MAMBA_ENDPOINT = ds.mambaEndpoint || '';
+  var BOT_NAME = ds.botName || 'Support bot';
+  // Which bot to talk to — its public id in the platform DB. There is no
+  // default: a tag without one is a misconfigured embed, not someone else's bot.
+  var BOT_ID = ds.bot || ds.site || '';
+  if (!BOT_ID) {
+    if (window.console) console.error('[yo-bot] Missing data-bot="…" on the <script> tag.');
+    return;
+  }
 
   // Display theming. Inline data-* wins (per-embed override); otherwise the
   // bot's dashboard-chosen values are fetched from /api/bot-config on load.
   //   data-accent / data-bg / data-font = "#rrggbb"
   //   data-title / data-description      = header text
-  var ACCENT = (script && script.dataset.accent) || '';
-  var BG = (script && script.dataset.bg) || '';
-  var FONT = (script && script.dataset.font) || '';
-  var TITLE_OVERRIDE = (script && script.dataset.title) || '';
-  var DESC_OVERRIDE = (script && script.dataset.description) || '';
-  var GREETING_OVERRIDE = (script && script.dataset.greeting) || '';
-  var PLACEHOLDER_OVERRIDE = (script && script.dataset.placeholder) || '';
+  var ACCENT = ds.accent || '';
+  var BG = ds.bg || '';
+  var FONT = ds.font || '';
+  var TITLE_OVERRIDE = ds.title || '';
+  var DESC_OVERRIDE = ds.description || '';
+  var GREETING_OVERRIDE = ds.greeting || '';
+  var PLACEHOLDER_OVERRIDE = ds.placeholder || '';
   var CONFIG_ENDPOINT =
-    (script && script.dataset.configEndpoint) ||
+    ds.configEndpoint ||
     (scriptOrigin ? scriptOrigin + '/api/bot-config' : '/api/bot-config');
 
   // UI language: data-lang="th"/"en" wins; otherwise follow the browser.
   var LANG =
-    (script && script.dataset.lang) ||
+    ds.lang ||
     ((navigator.language || '').toLowerCase().indexOf('th') === 0 ? 'th' : 'en');
   var TH = LANG === 'th';
 
@@ -88,7 +104,7 @@
     '.yobot-fab svg{width:26px;height:26px}',
     // Until /api/bot-config answers we do not know the owner's accent, so the
     // bubble waits in neutral grey rather than flashing the default blue.
-    '.yobot-fab--loading{background:linear-gradient(135deg,#d7d9de,#c3c6cd);color:#8b8f98;border-color:rgba(0,0,0,.08);cursor:default;pointer-events:none;animation:yobot-fab-pulse 1.4s ease-in-out infinite}',
+    '.yobot-fab--loading{background:linear-gradient(135deg,#d7d9de,#c3c6cd);color:#8b8f98;border-color:rgba(0,0,0,.08);animation:yobot-fab-pulse 1.4s ease-in-out infinite}',
     '@keyframes yobot-fab-pulse{0%,100%{opacity:.55}50%{opacity:.9}}',
     // …then it pops in wearing the real theme.
     '.yobot-fab--ready{animation:yobot-fab-pop .32s cubic-bezier(.34,1.56,.64,1)}',
@@ -206,10 +222,11 @@
     style.textContent = css;
     document.head.appendChild(style);
 
+    // The bubble is usable immediately; the "loading" look is cosmetic only
+    // (it swaps to the owner's colours once /api/bot-config answers).
     var fab = el('button', 'yobot-root yobot-fab yobot-fab--loading');
     fab.type = 'button';
-    fab.disabled = true;
-    fab.setAttribute('aria-label', 'Open AI chat about Chaiyo');
+    fab.setAttribute('aria-label', TH ? 'เปิดแชทช่วยเหลือ' : 'Open support chat');
     fab.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3C7.03 3 3 6.58 3 11c0 2.05.9 3.92 2.37 5.33-.13 1.05-.53 2.3-1.37 3.67 2.02-.24 3.55-.9 4.61-1.53.75.17 1.55.28 2.39.28 4.97 0 9-3.58 9-8s-4.03-8-9-8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11" r="1.1" fill="currentColor"/><circle cx="12" cy="11" r="1.1" fill="currentColor"/><circle cx="15.4" cy="11" r="1.1" fill="currentColor"/></svg>';
 
@@ -231,8 +248,7 @@
     var modeWrap = el('div', 'yobot-mode');
     var btnGroq = el('button', 'active', 'Smart');
     var btnMamba = el('button', '', 'My Mamba');
-    btnMamba.title =
-      'A small Mamba language model Chaiyo fine-tuned himself — experimental!';
+    btnMamba.title = 'A small self-hosted Mamba language model — experimental!';
     modeWrap.appendChild(btnGroq);
     modeWrap.appendChild(btnMamba);
     if (MAMBA_ENDPOINT) modeWrap.classList.add('visible');
@@ -283,7 +299,6 @@
       clearTimeout(readyTimer);
       fab.classList.remove('yobot-fab--loading');
       fab.classList.add('yobot-fab--ready');
-      fab.disabled = false;
     }
     var readyTimer = setTimeout(markReady, 4000);
     // An inline data-accent already tells us how the bubble should look, so it
@@ -346,7 +361,7 @@
       addMsg(
         'yobot-msg--note',
         mode === 'mamba'
-          ? 'Switched to Chaiyo’s own fine-tuned Mamba (130M) — expect charmingly rough answers.'
+          ? 'Switched to the experimental Mamba model — expect charmingly rough answers.'
           : 'Switched to the smart model.'
       );
     }
@@ -367,6 +382,9 @@
 
       addMsg('yobot-msg--user', text);
       history.push({ role: 'user', content: text });
+      // Only the last few turns are ever sent; don't let a long session
+      // accumulate every reply in memory either.
+      if (history.length > 40) history.splice(0, history.length - 40);
 
       var typing = addMsg('yobot-msg--bot', '');
       typing.innerHTML =

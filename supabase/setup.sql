@@ -1,6 +1,10 @@
--- Yo-bot platform — one-and-done database setup (idempotent).
--- Supabase -> SQL Editor -> paste this whole file -> Run. Safe to re-run.
--- This REPLACES running schema.sql + 002_user_bots.sql separately.
+-- Yo-bot platform — the ONE database setup file (idempotent).
+-- Supabase -> SQL Editor -> paste this whole file -> Run. Safe to re-run,
+-- and safe to run on a database created by an older version of this file:
+-- every statement is IF NOT EXISTS / ADD COLUMN IF NOT EXISTS.
+--
+-- Columns must match what the app writes (app/dashboard/actions.js) and reads
+-- (lib/bots.js CHAT_COLUMNS / DISPLAY_COLUMNS).
 
 create extension if not exists pgcrypto;   -- gen_random_uuid()
 
@@ -30,8 +34,22 @@ alter table public.bots
   alter column public_id
   set default ('bot_' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 12));
 
-create index if not exists bots_public_id_idx on public.bots (public_id);
-create index if not exists bots_owner_idx     on public.bots (owner);
+-- Display settings the embed widget reads via GET /api/bot-config. Colours are
+-- validated by the app (6-digit hex) rather than a DB constraint so old rows
+-- never fail an update.
+alter table public.bots
+  add column if not exists accent_color text not null default '#5e85a4',
+  add column if not exists bg_color     text not null default '#0a0c14',
+  add column if not exists font_color   text not null default '#eef1f8',
+  add column if not exists title        text not null default '',
+  add column if not exists description  text not null default '',
+  add column if not exists greeting     text not null default '',
+  add column if not exists placeholder  text not null default '';
+
+-- public_id already has a unique index from its constraint; the dashboard
+-- lists a user's bots newest-first, so index that access path instead.
+drop index if exists public.bots_public_id_idx;
+create index if not exists bots_owner_updated_idx on public.bots (owner, updated_at desc);
 
 -- Keep updated_at fresh on every change.
 create or replace function public.touch_updated_at()
@@ -129,3 +147,11 @@ In Thai you are a male bot: use the polite particle "ครับ".$persona$,
 $knowledge$
 )
 on conflict (public_id) do nothing;
+
+-- The demo bot's Thai opening message + placeholder (only if not customised).
+update public.bots
+set
+  greeting = coalesce(nullif(greeting, ''),
+    'สวัสดีครับ! ผม Yo-bot 🤖 ถามอะไรเกี่ยวกับไชโยได้เลย — งาน สกิล โปรเจกต์ หรือช่องทางติดต่อครับ'),
+  placeholder = coalesce(nullif(placeholder, ''), 'ถามเรื่องไชโย…')
+where public_id = 'portfolio';

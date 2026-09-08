@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { signOut } from './actions';
+import SessionKeeper from '@/components/SessionKeeper';
 
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient();
@@ -12,6 +13,7 @@ export default async function DashboardLayout({ children }) {
 
   return (
     <div className="shell">
+      <SessionKeeper />
       <header className="topbar">
         <Link href="/dashboard" className="brand">
           <span className="brandmark" aria-hidden="true">
