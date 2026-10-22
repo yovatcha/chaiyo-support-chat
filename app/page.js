@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Brand from '@/components/Brand';
 import SiteNav from '@/components/SiteNav';
+import GSAPLanding from '@/components/landing/GSAPLanding';
 import ScrollHUD from '@/components/landing/ScrollHUD';
 import Hero from '@/components/landing/Hero';
 import What from '@/components/landing/What';
@@ -16,6 +17,7 @@ export default function Home() {
     <main className="landing">
       <div className="grain" aria-hidden="true" />
       <SiteNav />
+      <GSAPLanding />
       <ScrollHUD />
 
       <Hero />

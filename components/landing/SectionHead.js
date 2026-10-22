@@ -17,6 +17,7 @@ export default function SectionHead({ idx, en, title, lead, align = 'left' }) {
 
   return (
     <header className={'sec-head sec-head--' + align}>
+      <span className="sec-ghost" aria-hidden="true">{idx}</span>
       <div className="sec-rule">
         <span className="mono-label">
           <span className="sec-idx">{idx}</span> — {en}
