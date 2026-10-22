@@ -212,18 +212,13 @@ code, pre { font-family: var(--font-mono); }
   color: var(--fg);
 }
 .brandmark {
-  display: inline-grid;
-  grid-template-rows: repeat(4, 1fr);
-  width: 20px;
-  height: 22px;
-  border-radius: 3px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin-top: 3px;
 }
-.brandmark .s1 { background: var(--cream); }
-.brandmark .s2 { background: var(--red); }
-.brandmark .s3 { background: var(--yellow); }
-.brandmark .s4 { background: var(--gold); }
+.brand-dash { color: var(--red-hot); }
 
 /* ── 5. Buttons ────────────────────────────────────────────────────────── */
 .btn {
