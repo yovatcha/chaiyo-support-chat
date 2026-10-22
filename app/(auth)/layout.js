@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Brand from '@/components/Brand';
 
 // Shared chrome for every auth screen: brand panel on the left, whichever
 // form is active on the right. The (auth) group keeps the URLs flat —
@@ -7,30 +7,20 @@ export default function AuthLayout({ children }) {
   return (
     <main className="auth">
       <aside className="auth-brand">
-        <Link href="/" className="brand">
-          <span className="brandmark" aria-hidden="true">
-            <span className="s1" /><span className="s2" /><span className="s3" /><span className="s4" />
-          </span>
-          Yo-bot
-        </Link>
+        <div className="auth-grid" aria-hidden="true" />
+        <Brand href="/" />
 
         <div className="auth-brand-body">
+          <span className="mono-label">ACCESS · CONSOLE</span>
           <h2 className="auth-tagline">
-            Add AI support chat to <span>any website.</span>
+            แชทซัพพอร์ต AI
+            <br />
+            สำหรับ<span>ทุกเว็บไซต์</span>
           </h2>
           <ul className="auth-points">
-            <li>
-              <span className="auth-point-dot" style={{ background: 'var(--blue)' }} />
-              Set up in minutes
-            </li>
-            <li>
-              <span className="auth-point-dot" style={{ background: 'var(--red)' }} />
-              One script tag, any framework
-            </li>
-            <li>
-              <span className="auth-point-dot" style={{ background: 'var(--gold)' }} />
-              Branded to match your site
-            </li>
+            <li><span className="mono-idx">[01]</span> ตั้งค่าเสร็จในไม่กี่นาที</li>
+            <li><span className="mono-idx">[02]</span> สคริปต์บรรทัดเดียว ใช้ได้ทุกเฟรมเวิร์ก</li>
+            <li><span className="mono-idx">[03]</span> หน้าตาตรงกับแบรนด์ของคุณ</li>
           </ul>
         </div>
 
@@ -40,7 +30,7 @@ export default function AuthLayout({ children }) {
       </aside>
 
       <section className="auth-panel">
-        <div className="auth-form-wrap">{children}</div>
+        <div className="auth-form-wrap frame">{children}</div>
       </section>
     </main>
   );

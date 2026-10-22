@@ -20,8 +20,8 @@ export default function CopyEmbed({ publicId, origin, botName }) {
   }
 
   return (
-    <section className="embed">
-      <h2>Embed snippet</h2>
+    <section className="embed frame">
+      <div className="form-sec-head"><span className="mono-idx">05</span><h2>Embed snippet</h2></div>
       <p className="muted small">Paste this into any page of your website.</p>
       <pre>{snippet}</pre>
       <button type="button" className="btn" onClick={copy}>

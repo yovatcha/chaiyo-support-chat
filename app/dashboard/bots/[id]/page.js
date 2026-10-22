@@ -37,7 +37,12 @@ export default async function EditBotPage({ params, searchParams }) {
 
   return (
     <div>
-      <h1>Edit bot</h1>
+      <div className="pagehead">
+        <div>
+          <span className="mono-label">EDIT · {bot.public_id}</span>
+          <h1>{bot.bot_name || 'Edit bot'}</h1>
+        </div>
+      </div>
       {sp?.saved ? <p className="ok">Saved.</p> : null}
       {sp?.error ? <p className="error">{sp.error}</p> : null}
 
@@ -45,7 +50,8 @@ export default async function EditBotPage({ params, searchParams }) {
 
       <CopyEmbed publicId={bot.public_id} origin={origin} botName={bot.bot_name} />
 
-      <div className="danger">
+      <div className="danger frame">
+        <span className="mono-label">DANGER ZONE</span>
         <DeleteBotButton action={deleteBot.bind(null, id)} botName={bot.bot_name} />
       </div>
     </div>

@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { signOut } from './actions';
 import SessionKeeper from '@/components/SessionKeeper';
+import DashNav from '@/components/DashNav';
 
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient();
@@ -14,19 +14,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="shell">
       <SessionKeeper />
-      <header className="topbar">
-        <Link href="/dashboard" className="brand">
-          <span className="brandmark" aria-hidden="true">
-            <span className="s1" /><span className="s2" /><span className="s3" /><span className="s4" />
-          </span>
-          Yo-bot
-        </Link>
-        <div className="spacer" />
-        <span className="muted small">{user.email}</span>
-        <form action={signOut}>
-          <button className="link">Sign out</button>
-        </form>
-      </header>
+      <DashNav email={user.email} signOut={signOut} />
       <main className="content">{children}</main>
     </div>
   );

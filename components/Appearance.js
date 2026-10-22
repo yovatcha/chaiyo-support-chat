@@ -7,63 +7,10 @@
 
 import { useState } from 'react';
 import ColorPicker from '@/components/ColorPicker';
+import { DEFAULTS, ACCENT_PRESETS, BG_PRESETS, FONT_PRESETS } from '@/lib/appearance-presets';
+import { luminance, readableOn, lighten, rgba } from '@/lib/color';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
-
-const DEFAULTS = { accent: '#5e85a4', bg: '#0a0c14', font: '#eef1f8' };
-
-const ACCENT_PRESETS = [
-  { name: 'Slate', value: '#5e85a4' },
-  { name: 'Red', value: '#cc2b22' },
-  { name: 'Gold', value: '#e1b341' },
-  { name: 'Green', value: '#2f9e6b' },
-  { name: 'Violet', value: '#7c5cff' },
-  { name: 'Sky', value: '#0ea5e9' },
-  { name: 'Pink', value: '#db2777' },
-  { name: 'Ink', value: '#1a1b1e' },
-];
-
-const BG_PRESETS = [
-  { name: 'Midnight', value: '#0a0c14' },
-  { name: 'Charcoal', value: '#1a1b1e' },
-  { name: 'Slate', value: '#23272f' },
-  { name: 'Ocean', value: '#0f2233' },
-  { name: 'Ivory', value: '#f7f4ee' },
-  { name: 'White', value: '#ffffff' },
-];
-
-const FONT_PRESETS = [
-  { name: 'Snow', value: '#eef1f8' },
-  { name: 'White', value: '#ffffff' },
-  { name: 'Cloud', value: '#c7cedd' },
-  { name: 'Graphite', value: '#3a3d44' },
-  { name: 'Ink', value: '#1a1b1e' },
-];
-
-function hexToRgb(h) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(h || '');
-  if (!m) return null;
-  const i = parseInt(m[1], 16);
-  return { r: (i >> 16) & 255, g: (i >> 8) & 255, b: i & 255 };
-}
-function luminance(hex) {
-  const c = hexToRgb(hex);
-  return c ? (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255 : 0;
-}
-// Mirror of the widget's contrast logic so the user bubble reads the same.
-function readableOn(hex) {
-  return luminance(hex) > 0.6 ? '#1a1b1e' : '#ffffff';
-}
-function lighten(hex, amt) {
-  const c = hexToRgb(hex);
-  if (!c) return hex;
-  const comp = (x) => Math.round(x).toString(16).padStart(2, '0');
-  return '#' + comp(c.r + (255 - c.r) * amt) + comp(c.g + (255 - c.g) * amt) + comp(c.b + (255 - c.b) * amt);
-}
-function rgba(hex, a) {
-  const c = hexToRgb(hex);
-  return c ? `rgba(${c.r},${c.g},${c.b},${a})` : hex;
-}
 
 export default function Appearance({ bot = {} }) {
   const [title, setTitle] = useState(bot.title || '');
@@ -88,8 +35,8 @@ export default function Appearance({ bot = {} }) {
   const placeholderText = placeholder.trim() || 'Type a message…';
 
   return (
-    <section className="appearance">
-      <h2>Appearance</h2>
+    <section className="appearance form-sec frame">
+      <div className="form-sec-head"><span className="mono-idx">04</span><h2>Appearance</h2></div>
       <p className="muted small">
         How the chat window looks and reads on your site. Changes preview live below.
       </p>

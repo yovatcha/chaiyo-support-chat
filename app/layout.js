@@ -1,31 +1,38 @@
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Bai_Jamjuree, IBM_Plex_Sans_Thai, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-// Lumen Sans is proprietary; Inter is the documented open-source substitute —
-// same geometric proportions, run at modest weights (400 body / 500 display).
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
+// Display voice — a geometric, engineered Thai/Latin face for headings.
+const display = Bai_Jamjuree({
+  subsets: ['latin', 'thai'],
+  weight: ['500', '600', '700'],
   display: 'swap',
-  variable: '--font-sans',
+  variable: '--ff-display',
 });
 
-// The system's only second voice — mono for the embed / code captions.
+// Body voice — calm, highly legible in both scripts.
+const sans = IBM_Plex_Sans_Thai({
+  subsets: ['latin', 'thai'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--ff-sans',
+});
+
+// Console voice — stage labels, indices, code.
 const mono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
   display: 'swap',
-  variable: '--font-mono',
+  variable: '--ff-mono',
 });
 
 export const metadata = {
-  title: 'Yo-bot — AI support chat platform',
-  description: 'Create an AI support chatbot for any website in minutes.',
+  title: 'Yo-bot — แชทซัพพอร์ต AI สำหรับทุกเว็บไซต์',
+  description: 'สร้างบอทซัพพอร์ต AI ที่ตอบจากความรู้ของคุณ แล้วติดตั้งบนเว็บไซต์ด้วยสคริปต์บรรทัดเดียว',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+    <html lang="th" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );
