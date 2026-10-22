@@ -40,13 +40,13 @@ export default async function EditBotPage({ params, searchParams }) {
       <div className="pagehead">
         <div>
           <span className="mono-label">EDIT · {bot.public_id}</span>
-          <h1>{bot.bot_name || 'Edit bot'}</h1>
+          <h1>{bot.bot_name || 'แก้ไขบอท'}</h1>
         </div>
       </div>
-      {sp?.saved ? <p className="ok">Saved.</p> : null}
+      {sp?.saved ? <p className="ok">บันทึกแล้ว</p> : null}
       {sp?.error ? <p className="error">{sp.error}</p> : null}
 
-      <BotForm action={updateBot.bind(null, id)} bot={bot} submitLabel="Save changes" />
+      <BotForm action={updateBot.bind(null, id)} bot={bot} submitLabel="บันทึกการเปลี่ยนแปลง" />
 
       <CopyEmbed publicId={bot.public_id} origin={origin} botName={bot.bot_name} />
 

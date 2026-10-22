@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { siteOrigin, RECOVERY_COOKIE } from '@/lib/auth';
+import { authErrorMessage } from '@/lib/auth-messages';
 
 const MIN_PASSWORD = 8;
 
@@ -34,7 +35,7 @@ export async function login(formData) {
       /email not confirmed/i.test(error.message || '');
     if (unconfirmed) back('/check-email', { email, reason: 'unconfirmed' });
 
-    back('/login', { error: error.message, email });
+    back('/login', { error: authErrorMessage(error), email });
   }
 
   redirect('/dashboard');
@@ -46,7 +47,7 @@ export async function signup(formData) {
 
   if (password.length < MIN_PASSWORD) {
     back('/signup', {
-      error: `Password must be at least ${MIN_PASSWORD} characters.`,
+      error: `รหัสผ่านต้องมีอย่างน้อย ${MIN_PASSWORD} ตัวอักษร`,
       email,
     });
   }
@@ -59,7 +60,7 @@ export async function signup(formData) {
     options: { emailRedirectTo: `${origin}/auth/callback?next=/dashboard` },
   });
 
-  if (error) back('/signup', { error: error.message, email });
+  if (error) back('/signup', { error: authErrorMessage(error), email });
 
   // Email confirmation turned OFF in Supabase — signUp already returned a
   // session, so skip the check-your-email step entirely.
@@ -70,7 +71,7 @@ export async function signup(formData) {
 
 export async function resendConfirmation(formData) {
   const email = read(formData, 'email');
-  if (!email) back('/check-email', { error: 'Enter your email address first.' });
+  if (!email) back('/check-email', { error: 'กรุณากรอกอีเมลก่อน' });
 
   const origin = await siteOrigin();
   const supabase = await createClient();
@@ -80,7 +81,7 @@ export async function resendConfirmation(formData) {
     options: { emailRedirectTo: `${origin}/auth/callback?next=/dashboard` },
   });
 
-  if (error) back('/check-email', { email, error: error.message });
+  if (error) back('/check-email', { email, error: authErrorMessage(error, 'ส่งลิงก์ไม่สำเร็จ กรุณาลองอีกครั้ง') });
   back('/check-email', { email, sent: '1' });
 }
 
@@ -104,11 +105,11 @@ export async function updatePassword(formData) {
 
   if (password.length < MIN_PASSWORD) {
     back('/reset-password', {
-      error: `Password must be at least ${MIN_PASSWORD} characters.`,
+      error: `รหัสผ่านต้องมีอย่างน้อย ${MIN_PASSWORD} ตัวอักษร`,
     });
   }
   if (password !== confirm) {
-    back('/reset-password', { error: 'Those passwords don’t match.' });
+    back('/reset-password', { error: 'รหัสผ่านทั้งสองช่องไม่ตรงกัน' });
   }
 
   const supabase = await createClient();
@@ -123,13 +124,13 @@ export async function updatePassword(formData) {
   const viaRecovery = jar.get(RECOVERY_COOKIE)?.value === '1';
   if (!user || !viaRecovery) {
     back('/auth-error', {
-      reason: 'Your reset link has expired. Request a new one.',
+      reason: 'ลิงก์ตั้งรหัสผ่านหมดอายุแล้ว กรุณาขอลิงก์ใหม่',
     });
   }
 
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) back('/reset-password', { error: error.message });
+  if (error) back('/reset-password', { error: authErrorMessage(error, 'เปลี่ยนรหัสผ่านไม่สำเร็จ กรุณาลองอีกครั้ง') });
 
   jar.delete(RECOVERY_COOKIE);
-  back('/login', { notice: 'Password updated. Sign in with your new password.' });
+  back('/login', { notice: 'เปลี่ยนรหัสผ่านแล้ว เข้าสู่ระบบด้วยรหัสผ่านใหม่' });
 }

@@ -28,7 +28,7 @@ export default function ColorPicker({ value, onChange, presets = [] }) {
 
       <label
         className={'swatch custom' + (!isPreset ? ' active' : '')}
-        title="Custom color"
+        title="เลือกสีเอง"
         style={!isPreset && HEX.test(value || '') ? { background: value } : undefined}
       >
         {isPreset ? '+' : ''}
@@ -36,7 +36,7 @@ export default function ColorPicker({ value, onChange, presets = [] }) {
           type="color"
           value={HEX.test(value || '') ? value : '#000000'}
           onChange={(e) => onChange(e.target.value)}
-          aria-label="Custom color"
+          aria-label="เลือกสีเอง"
         />
       </label>
     </div>

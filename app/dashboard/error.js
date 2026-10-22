@@ -5,12 +5,12 @@
 export default function DashboardError({ error, reset }) {
   return (
     <div>
-      <h1>Something went wrong</h1>
+      <h1>เกิดข้อผิดพลาด</h1>
       <p className="error">
-        {error?.message || 'The dashboard could not load. Please try again.'}
+        {error?.message || 'โหลดแดชบอร์ดไม่สำเร็จ ลองอีกครั้ง'}
       </p>
       <button type="button" className="btn" onClick={() => reset()}>
-        Try again
+        ลองอีกครั้ง
       </button>
     </div>
   );

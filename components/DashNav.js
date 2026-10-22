@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import Brand from '@/components/Brand';
 
 const NAV = [
-  { href: '/dashboard', idx: '01', label: 'Bots', exact: true },
-  { href: '/dashboard/bots/new', idx: '02', label: 'New bot', exact: true },
+  { href: '/dashboard', idx: '01', label: 'บอท', exact: true },
+  { href: '/dashboard/bots/new', idx: '02', label: 'สร้างบอท', exact: true },
 ];
 
 // Dashboard sidebar. On narrow screens it collapses into a top bar whose
@@ -54,7 +54,7 @@ export default function DashNav({ email, signOut }) {
               <li>
                 <span className="dash-link is-active">
                   <span className="mono-idx">↳</span>
-                  Edit bot
+                  แก้ไขบอท
                 </span>
               </li>
             ) : null}
@@ -65,11 +65,11 @@ export default function DashNav({ email, signOut }) {
           <span className="mono-label">SIGNED IN</span>
           <span className="dash-email" title={email}>{email}</span>
           <form action={signOut}>
-            <button className="btn ghost full">Sign out</button>
+            <button className="btn ghost full">ออกจากระบบ</button>
           </form>
         </div>
       </aside>
-      {open ? <button type="button" className="dash-scrim" aria-label="Close menu" onClick={() => setOpen(false)} /> : null}
+      {open ? <button type="button" className="dash-scrim" aria-label="ปิดเมนู" onClick={() => setOpen(false)} /> : null}
     </>
   );
 }

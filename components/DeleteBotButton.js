@@ -11,7 +11,7 @@ export default function DeleteBotButton({ action, botName }) {
   if (!armed) {
     return (
       <button type="button" className="link danger" onClick={() => setArmed(true)}>
-        Delete this bot
+        ลบบอทนี้
       </button>
     );
   }
@@ -19,14 +19,14 @@ export default function DeleteBotButton({ action, botName }) {
   return (
     <form action={action} className="delete-confirm">
       <p className="muted small">
-        Delete <strong>{botName || 'this bot'}</strong>? Any site embedding it stops working immediately.
-        This cannot be undone.
+        ลบ <strong>{botName || 'บอทนี้'}</strong> ใช่ไหม เว็บไซต์ที่ติดตั้งบอทนี้จะใช้งานไม่ได้ทันที
+        และไม่สามารถกู้คืนได้
       </p>
-      <SubmitButton className="btn danger" pendingLabel="Deleting…">
-        Yes, delete it
+      <SubmitButton className="btn danger" pendingLabel="กำลังลบ…">
+        ใช่ ลบเลย
       </SubmitButton>{' '}
       <button type="button" className="link" onClick={() => setArmed(false)}>
-        Cancel
+        ยกเลิก
       </button>
     </form>
   );

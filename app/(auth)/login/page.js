@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { login } from '../actions';
 import SubmitButton from '@/components/SubmitButton';
 
-export const metadata = { title: 'Sign in — Yo-bot' };
+export const metadata = { title: 'เข้าสู่ระบบ — Yo-bot' };
 
 export default async function LoginPage({ searchParams }) {
   const params = await searchParams;
@@ -10,8 +10,8 @@ export default async function LoginPage({ searchParams }) {
   return (
     <>
       <header className="auth-head">
-        <h1>Welcome back</h1>
-        <p className="muted small">Sign in to manage your bots.</p>
+        <h1>ยินดีต้อนรับกลับ</h1>
+        <p className="muted small">เข้าสู่ระบบเพื่อจัดการบอทของคุณ</p>
       </header>
 
       {params?.notice ? <p className="ok">{params.notice}</p> : null}
@@ -19,7 +19,7 @@ export default async function LoginPage({ searchParams }) {
 
       <form className="auth-form" action={login}>
         <label>
-          Email
+          อีเมล
           <input
             name="email"
             type="email"
@@ -33,8 +33,8 @@ export default async function LoginPage({ searchParams }) {
 
         <label>
           <span className="label-row">
-            Password
-            <Link href="/forgot-password" className="label-link">Forgot?</Link>
+            รหัสผ่าน
+            <Link href="/forgot-password" className="label-link">ลืมรหัสผ่าน?</Link>
           </span>
           <input
             name="password"
@@ -45,13 +45,13 @@ export default async function LoginPage({ searchParams }) {
           />
         </label>
 
-        <SubmitButton className="btn big full" pendingLabel="Signing in…">
-          Sign in
+        <SubmitButton className="btn big full" pendingLabel="กำลังเข้าสู่ระบบ…">
+          เข้าสู่ระบบ
         </SubmitButton>
       </form>
 
       <p className="auth-alt muted small">
-        New here? <Link href="/signup">Create an account</Link>
+        ยังไม่มีบัญชี? <Link href="/signup">สมัครบัญชี</Link>
       </p>
     </>
   );

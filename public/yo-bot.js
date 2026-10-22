@@ -46,7 +46,7 @@
   var API_ENDPOINT =
     ds.endpoint || (scriptOrigin ? scriptOrigin + '/api/chat' : '/api/chat');
   var MAMBA_ENDPOINT = ds.mambaEndpoint || '';
-  var BOT_NAME = ds.botName || 'Support bot';
+  var BOT_NAME = ds.botName || '';
   // Which bot to talk to — its public id in the platform DB. There is no
   // default: a tag without one is a misconfigured embed, not someone else's bot.
   var BOT_ID = ds.bot || ds.site || '';
@@ -75,12 +75,13 @@
     ds.lang ||
     ((navigator.language || '').toLowerCase().indexOf('th') === 0 ? 'th' : 'en');
   var TH = LANG === 'th';
+  if (!BOT_NAME) BOT_NAME = TH ? 'บอทช่วยเหลือ' : 'Support bot';
 
   // Neutral, name-based fallbacks. The bot owner's dashboard copy (greeting /
   // placeholder / description) overrides these once /api/bot-config loads, so
   // these only show when nothing has been customized.
   var GREETING = TH
-    ? 'สวัสดีครับ! ผม ' + BOT_NAME + ' 🤖 มีอะไรให้ช่วยไหมครับ'
+    ? 'สวัสดี นี่คือ ' + BOT_NAME + ' มีอะไรสอบถามได้เลย'
     : "Hi! I'm " + BOT_NAME + ' 🤖 How can I help you today?';
   var SUBTITLE = TH ? 'ผู้ช่วย AI · ถามได้เลย' : 'AI support · ask me anything';
   var PLACEHOLDER = TH ? 'พิมพ์ข้อความ…' : 'Type a message…';
@@ -98,7 +99,7 @@
     '  --yb-border: var(--border, rgba(255,255,255,0.12));',
     '  --yb-font: var(--font-body, var(--font, system-ui, -apple-system, "Segoe UI", sans-serif));',
     '  --yb-font-display: var(--font-display, var(--yb-font));',
-    '  --yb-font-mono: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);',
+    '  --yb-font-mono: var(--font-mono, ui-monospace), var(--yb-font), SFMono-Regular, Menlo, monospace;',
     '}',
     '.yobot-fab{position:fixed;right:22px;bottom:22px;z-index:2147483000;width:56px;height:56px;border-radius:16px;border:1px solid var(--yb-border);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);cursor:pointer;display:grid;place-items:center;box-shadow:0 12px 32px -6px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.12);transition:transform .2s ease,background .3s ease,color .3s ease,opacity .3s ease}',
     '.yobot-fab:not(.yobot-fab--loading):hover{transform:translateY(-2px)}',
@@ -116,8 +117,8 @@
     '.yobot-panel.shown{opacity:1;transform:translateY(0)}',
     '.yobot-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--yb-border)}',
     '.yobot-head__dot{width:9px;height:9px;border-radius:50%;background:var(--yb-accent-2);box-shadow:0 0 10px var(--yb-accent-2)}',
-    '.yobot-head__title{font-family:var(--yb-font-display);font-weight:600;color:var(--yb-fg);font-size:.95rem;letter-spacing:-.005em}',
-    '.yobot-head__sub{color:var(--yb-muted);font-size:.7rem;font-family:var(--yb-font-mono);letter-spacing:.04em}',
+    '.yobot-head__title{font-family:var(--yb-font-display);font-weight:600;color:var(--yb-fg);font-size:.95rem;line-height:1.35}',
+    '.yobot-head__sub{color:var(--yb-muted);font-size:.75rem;line-height:1.45;font-family:var(--yb-font-mono);letter-spacing:.02em}',
     '.yobot-mode{margin-left:auto;display:none;gap:4px;background:var(--yb-card);border:1px solid var(--yb-border);border-radius:999px;padding:3px}',
     '.yobot-mode.visible{display:flex}',
     '.yobot-mode button{border:0;background:transparent;color:var(--yb-muted);font-size:.68rem;padding:4px 10px;border-radius:999px;cursor:pointer;font-family:var(--yb-font)}',
@@ -125,7 +126,7 @@
     '.yobot-close{border:0;background:transparent;color:var(--yb-muted);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:8px}',
     '.yobot-mode:not(.visible)+.yobot-close{margin-left:auto}',
     '.yobot-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}',
-    '.yobot-msg{max-width:85%;padding:10px 13px;border-radius:10px;font-size:.85rem;line-height:1.45;white-space:pre-wrap;word-break:break-word}',
+    '.yobot-msg{max-width:85%;padding:10px 13px;border-radius:10px;font-size:.9rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal}',
     '.yobot-msg--bot{align-self:flex-start;color:var(--yb-fg);background:var(--yb-card);border:1px solid var(--yb-border);border-bottom-left-radius:2px}',
     '.yobot-msg--user{align-self:flex-end;color:var(--yb-accent-fg);background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));border-bottom-right-radius:2px}',
     '.yobot-msg--err{border-color:rgba(255,99,99,.5);color:#ffb4b4}',
@@ -136,11 +137,11 @@
     '.yobot-typing i:nth-child(3){animation-delay:.4s}',
     '@keyframes yobot-blink{0%,80%,100%{opacity:.25}40%{opacity:1}}',
     '.yobot-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--yb-border)}',
-    '.yobot-form input{flex:1;background:var(--yb-card);border:1px solid var(--yb-border);border-radius:8px;padding:10px 13px;color:var(--yb-fg);font-size:.85rem;font-family:var(--yb-font);outline:none;min-width:0}',
+    '.yobot-form input{flex:1;background:var(--yb-card);border:1px solid var(--yb-border);border-radius:8px;padding:10px 13px;color:var(--yb-fg);font-size:.9rem;font-family:var(--yb-font);outline:none;min-width:0}',
     '.yobot-form input:focus{border-color:var(--yb-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--yb-accent) 18%,transparent)}',
-    '.yobot-form button{border:0;border-radius:8px;padding:0 16px;cursor:pointer;background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);font-family:var(--yb-font-display);font-weight:600;font-size:.85rem}',
+    '.yobot-form button{border:0;border-radius:8px;padding:0 16px;cursor:pointer;background:linear-gradient(135deg,var(--yb-accent),var(--yb-accent-2));color:var(--yb-accent-fg);font-family:var(--yb-font-display);font-weight:600;font-size:.9rem}',
     '.yobot-form button:disabled{opacity:.5;cursor:default}',
-    '@media (max-width:480px){.yobot-panel{right:16px;bottom:86px}.yobot-fab{right:16px;bottom:16px}}',
+    '@media (max-width:480px){.yobot-panel{right:16px;bottom:86px}.yobot-fab{right:16px;bottom:16px}.yobot-form input{font-size:1rem}}',
   ].join('\n');
 
   function el(tag, cls, html) {
@@ -233,7 +234,7 @@
 
     var panel = el('div', 'yobot-root yobot-panel');
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'AI support chat');
+    panel.setAttribute('aria-label', TH ? 'หน้าต่างแชทช่วยเหลือ' : 'AI support chat');
 
     var head = el('div', 'yobot-head');
     head.appendChild(el('span', 'yobot-head__dot'));
@@ -249,14 +250,16 @@
     var modeWrap = el('div', 'yobot-mode');
     var btnGroq = el('button', 'active', 'Smart');
     var btnMamba = el('button', '', 'My Mamba');
-    btnMamba.title = 'A small self-hosted Mamba language model — experimental!';
+    btnMamba.title = TH
+      ? 'โมเดลภาษา Mamba แบบ self-hosted สำหรับทดลอง'
+      : 'A small self-hosted Mamba language model — experimental!';
     modeWrap.appendChild(btnGroq);
     modeWrap.appendChild(btnMamba);
     if (MAMBA_ENDPOINT) modeWrap.classList.add('visible');
     head.appendChild(modeWrap);
 
     var closeBtn = el('button', 'yobot-close', '✕');
-    closeBtn.setAttribute('aria-label', 'Close chat');
+    closeBtn.setAttribute('aria-label', TH ? 'ปิดหน้าต่างแชท' : 'Close chat');
     head.appendChild(closeBtn);
 
     var log = el('div', 'yobot-log');
@@ -264,7 +267,8 @@
     var input = el('input');
     input.placeholder = PLACEHOLDER_OVERRIDE || PLACEHOLDER;
     input.maxLength = 500;
-    var send = el('button', '', 'Send');
+    input.setAttribute('aria-label', TH ? 'ข้อความ' : 'Message');
+    var send = el('button', '', TH ? 'ส่ง' : 'Send');
     send.type = 'submit';
     form.appendChild(input);
     form.appendChild(send);
@@ -362,8 +366,10 @@
       addMsg(
         'yobot-msg--note',
         mode === 'mamba'
-          ? 'Switched to the experimental Mamba model — expect charmingly rough answers.'
-          : 'Switched to the smart model.'
+          ? (TH
+              ? 'เปลี่ยนเป็นโมเดล Mamba รุ่นทดลองแล้ว คำตอบอาจยังไม่สมบูรณ์'
+              : 'Switched to the experimental Mamba model — expect charmingly rough answers.')
+          : (TH ? 'เปลี่ยนเป็นโมเดลหลักแล้ว' : 'Switched to the smart model.')
       );
     }
     btnGroq.addEventListener('click', function () {
@@ -417,9 +423,16 @@
             .then(function (data) {
               typing.remove();
               if (!res.ok || !data.reply) {
+                var errorText = TH
+                  ? (res.status === 429
+                      ? 'ส่งข้อความถี่เกินไป รอสักครู่แล้วลองใหม่'
+                      : res.status === 403
+                        ? 'บอทนี้ยังไม่พร้อมใช้งานบนเว็บไซต์นี้'
+                        : 'ส่งข้อความไม่สำเร็จ กรุณาลองอีกครั้ง')
+                  : (data.error || 'Something went wrong. Please try again.');
                 addMsg(
                   'yobot-msg--bot yobot-msg--err',
-                  data.error || 'Hmm, something went wrong. Try again?'
+                  errorText
                 );
               } else {
                 addMsg('yobot-msg--bot', data.reply);
@@ -434,7 +447,9 @@
           typing.remove();
           addMsg(
             'yobot-msg--bot yobot-msg--err',
-            'Network error — is the chat backend reachable?'
+            TH
+              ? 'เชื่อมต่อระบบแชทไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'
+              : 'Could not reach the chat service. Please check your connection and try again.'
           );
         })
         .then(function () {

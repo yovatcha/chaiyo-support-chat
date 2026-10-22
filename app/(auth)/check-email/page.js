@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { resendConfirmation } from '../actions';
 import SubmitButton from '@/components/SubmitButton';
 
-export const metadata = { title: 'Check your email — Yo-bot' };
+export const metadata = { title: 'ยืนยันอีเมล — Yo-bot' };
 
 export default async function CheckEmailPage({ searchParams }) {
   const params = await searchParams;
@@ -14,20 +14,20 @@ export default async function CheckEmailPage({ searchParams }) {
       <div className="auth-icon" aria-hidden="true">✉</div>
 
       <header className="auth-head">
-        <h1>{unconfirmed ? 'Confirm your email first' : 'Check your email'}</h1>
+        <h1>{unconfirmed ? 'ยืนยันอีเมลก่อนเข้าใช้' : 'ตรวจสอบอีเมลของคุณ'}</h1>
         <p className="muted small">
           {unconfirmed
-            ? 'That account exists but hasn’t been confirmed yet. '
-            : 'We sent a confirmation link to '}
-          {email ? <strong>{email}</strong> : 'your inbox'}
+            ? 'บัญชีนี้ยังไม่ได้ยืนยันอีเมล เปิดลิงก์ที่เราส่งไปยัง '
+            : 'เราส่งลิงก์ยืนยันไปที่ '}
+          {email ? <strong>{email}</strong> : 'กล่องจดหมายของคุณ'}
           {unconfirmed
-            ? '. Use the link we emailed you, or send a fresh one below.'
-            : '. Opening it signs you straight in — no need to come back here.'}
+            ? ' หรือกดส่งลิงก์ใหม่ด้านล่าง'
+            : ' เปิดลิงก์แล้วเข้าใช้ได้เลย ไม่ต้องกลับมาหน้านี้'}
         </p>
       </header>
 
       {params?.sent ? (
-        <p className="ok">New link sent. It can take a minute to arrive.</p>
+        <p className="ok">ส่งลิงก์ใหม่แล้ว อาจใช้เวลาสักครู่จึงจะถึง</p>
       ) : null}
       {params?.error ? <p className="error">{params.error}</p> : null}
 
@@ -36,7 +36,7 @@ export default async function CheckEmailPage({ searchParams }) {
           <input type="hidden" name="email" value={email} />
         ) : (
           <label>
-            Email
+            อีเมล
             <input
               name="email"
               type="email"
@@ -47,13 +47,13 @@ export default async function CheckEmailPage({ searchParams }) {
           </label>
         )}
 
-        <SubmitButton className="btn secondary full" pendingLabel="Sending…">
-          Resend the link
+        <SubmitButton className="btn secondary full" pendingLabel="กำลังส่ง…">
+          ส่งลิงก์อีกครั้ง
         </SubmitButton>
       </form>
 
       <p className="auth-alt muted small">
-        Already confirmed? <Link href="/login">Sign in</Link>
+        ยืนยันแล้ว? <Link href="/login">เข้าสู่ระบบ</Link>
       </p>
     </>
   );

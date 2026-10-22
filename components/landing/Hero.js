@@ -8,9 +8,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 // order, then the log clears and the loop starts over.
 const SCRIPT = [
   { who: 'user', text: 'ร้านเปิดกี่โมงครับ' },
-  { who: 'bot', text: 'เปิดทุกวัน 09:00–20:00 น. ครับ วันหยุดนักขัตฤกษ์ก็เปิดตามปกติ' },
+  { who: 'bot', text: 'เปิดทุกวัน 09:00–20:00 น. รวมวันหยุดนักขัตฤกษ์ครับ' },
   { who: 'user', text: 'ส่งของต่างจังหวัดไหม' },
-  { who: 'bot', text: 'ส่งทั่วประเทศครับ 2–3 วันทำการ สั่งครบ 990 บาทส่งฟรี' },
+  { who: 'bot', text: 'ส่งทั่วประเทศครับ ใช้เวลา 2–3 วันทำการ สั่งครบ 990 บาท ส่งฟรี' },
   { who: 'user', text: 'ขอคุยกับเจ้าหน้าที่' },
   { who: 'bot', text: 'ได้เลยครับ ติดต่อทีมงานได้ที่ LINE @yo-shop หรือโทร 02-123-4567' },
 ];
@@ -116,15 +116,15 @@ export default function Hero() {
             ที่ตอบได้<span className="hl">จริง</span>
           </motion.h1>
           <motion.p className="hero-lead" {...up(0.22)}>
-            ใส่ความรู้ของธุรกิจคุณ ตั้งบุคลิกให้บอท แล้วติดตั้งบนเว็บไซต์ด้วย
-            <span className="mono-inline">&lt;script&gt;</span> บรรทัดเดียว
-            บอทจะตอบลูกค้าตลอด 24 ชั่วโมง และตอบเฉพาะสิ่งที่คุณสอนเท่านั้น
+            ใส่ความรู้ธุรกิจของคุณ กำหนดบุคลิกบอท แล้ววางแท็ก
+            <span className="mono-inline">&lt;script&gt;</span> บรรทัดเดียวบนเว็บไซต์
+            บอทจะตอบลูกค้าตลอด 24 ชั่วโมง โดยยึดเฉพาะข้อมูลที่คุณให้ไว้
           </motion.p>
           <motion.div className="hero-cta" {...up(0.32)}>
             <Link href="/signup" className="btn big">
               เริ่มสร้างบอท <span aria-hidden="true">→</span>
             </Link>
-            <a href="#how" className="btn ghost big">ดูวิธีทำงาน</a>
+            <a href="#how" className="btn ghost big">ดู 6 ขั้นตอนการทำงาน</a>
           </motion.div>
           <motion.dl className="hero-specs" {...up(0.42)}>
             <div><dt>SETUP</dt><dd>~5 นาที</dd></div>

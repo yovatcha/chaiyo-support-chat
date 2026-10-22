@@ -5,77 +5,77 @@ import Appearance from '@/components/Appearance';
 import SubmitButton from '@/components/SubmitButton';
 import { LIMITS } from '@/lib/bot-limits';
 
-export default function BotForm({ action, bot = {}, submitLabel }) {
+export default function BotForm({ action, bot = {}, submitLabel, pendingLabel = 'กำลังบันทึก…' }) {
   return (
     <form action={action} className="botform">
       <div className="form-sec frame">
-        <div className="form-sec-head"><span className="mono-idx">01</span><h2>Identity</h2></div>
+        <div className="form-sec-head"><span className="mono-idx">01</span><h2>ข้อมูลบอท</h2></div>
         <label>
-          Bot name
+          ชื่อบอท
           <input
             name="bot_name"
             defaultValue={bot.bot_name || ''}
-            placeholder="Acme Support"
+            placeholder="บอทช่วยเหลือ Acme"
             maxLength={LIMITS.bot_name}
           />
         </label>
 
         <label>
-          Persona — who the bot is and its job
+          บุคลิกบอท — บอทเป็นใครและทำหน้าที่อะไร
           <textarea
             name="persona"
             rows={4}
             required
             maxLength={LIMITS.persona}
             defaultValue={bot.persona || ''}
-            placeholder="You are Acme's support assistant. Answer questions about Acme's products, plans, and account help. Be friendly and speak in first person."
+            placeholder="คุณเป็นผู้ช่วยของร้าน Acme ตอบเรื่องสินค้า ราคา และการสั่งซื้อ ใช้น้ำเสียงเป็นกันเอง"
           />
         </label>
 
         <label>
-          Scope — what counts as on-topic
+          ขอบเขต — ตอบเรื่องอะไรได้บ้าง
           <input
             name="scope"
             required
             maxLength={LIMITS.scope}
             defaultValue={bot.scope || ''}
-            placeholder="questions about Acme — products, pricing, and support"
+            placeholder="สินค้า ราคา การสั่งซื้อ และบริการของ Acme"
           />
         </label>
 
         <label>
-          Fallback contact — where to send people when it doesn&apos;t know
+          ช่องทางติดต่อสำรอง — เมื่อตอบไม่ได้ให้ลูกค้าติดต่อที่ไหน
           <input
             name="fallback_contact"
             required
             maxLength={LIMITS.fallback_contact}
             defaultValue={bot.fallback_contact || ''}
-            placeholder="email support@acme.com"
+            placeholder="อีเมล support@acme.com หรือ LINE @acme"
           />
         </label>
 
       </div>
 
       <div className="form-sec frame">
-        <div className="form-sec-head"><span className="mono-idx">02</span><h2>Knowledge</h2></div>
+        <div className="form-sec-head"><span className="mono-idx">02</span><h2>ความรู้</h2></div>
         <label>
-          Knowledge — everything the bot should know (up to {LIMITS.knowledge.toLocaleString()} characters)
+          สิ่งที่บอทควรรู้ (สูงสุด {LIMITS.knowledge.toLocaleString('th-TH')} ตัวอักษร)
           <textarea
             name="knowledge"
             rows={14}
             required
             maxLength={LIMITS.knowledge}
             defaultValue={bot.knowledge || ''}
-            placeholder="Paste your FAQ, docs, product details, hours, policies… Plain text is fine."
+            placeholder="วาง FAQ เอกสาร รายละเอียดสินค้า เวลาเปิด หรือนโยบายต่าง ๆ ใช้ข้อความธรรมดาได้"
           />
         </label>
 
       </div>
 
       <div className="form-sec frame">
-        <div className="form-sec-head"><span className="mono-idx">03</span><h2>Access</h2></div>
+        <div className="form-sec-head"><span className="mono-idx">03</span><h2>การเข้าใช้</h2></div>
         <label>
-          Allowed website origins — optional, comma-separated (empty = any site)
+          โดเมนเว็บที่อนุญาต — คั่นด้วยจุลภาค (เว้นว่างเพื่อใช้ได้ทุกเว็บไซต์)
           <input
             name="allowed_origins"
             defaultValue={(bot.allowed_origins || []).join(', ')}
@@ -88,7 +88,7 @@ export default function BotForm({ action, bot = {}, submitLabel }) {
       <Appearance bot={bot} />
 
       <div className="form-actions">
-        <SubmitButton className="btn big" pendingLabel="Saving…">{submitLabel}</SubmitButton>
+        <SubmitButton className="btn big" pendingLabel={pendingLabel}>{submitLabel}</SubmitButton>
       </div>
     </form>
   );

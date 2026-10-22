@@ -4,7 +4,7 @@ import './globals.css';
 // Display voice — a geometric, engineered Thai/Latin face for headings.
 const display = Bai_Jamjuree({
   subsets: ['latin', 'thai'],
-  weight: ['500', '600', '700'],
+  weight: ['600', '700'],
   display: 'swap',
   variable: '--ff-display',
 });
@@ -27,7 +27,7 @@ const mono = JetBrains_Mono({
 
 export const metadata = {
   title: 'Yo-bot — แชทซัพพอร์ต AI สำหรับทุกเว็บไซต์',
-  description: 'สร้างบอทซัพพอร์ต AI ที่ตอบจากความรู้ของคุณ แล้วติดตั้งบนเว็บไซต์ด้วยสคริปต์บรรทัดเดียว',
+  description: 'สร้างแชทซัพพอร์ต AI จากความรู้ของคุณ แล้ววางสคริปต์บรรทัดเดียวบนเว็บไซต์',
 };
 
 export default function RootLayout({ children }) {

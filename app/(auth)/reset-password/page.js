@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { updatePassword } from '../actions';
 import SubmitButton from '@/components/SubmitButton';
 
-export const metadata = { title: 'Set a new password — Yo-bot' };
+export const metadata = { title: 'ตั้งรหัสผ่านใหม่ — Yo-bot' };
 
 export default async function ResetPasswordPage({ searchParams }) {
   const params = await searchParams;
@@ -19,14 +19,14 @@ export default async function ResetPasswordPage({ searchParams }) {
     return (
       <>
         <header className="auth-head">
-          <h1>This link has expired</h1>
+          <h1>ลิงก์นี้หมดอายุแล้ว</h1>
           <p className="muted small">
-            Password reset links are single-use and time-limited. Request a
-            fresh one to continue.
+            ลิงก์ตั้งรหัสผ่านใช้ได้ครั้งเดียวและมีเวลาจำกัด
+            ขอลิงก์ใหม่เพื่อดำเนินการต่อ
           </p>
         </header>
         <p className="auth-alt muted small">
-          <Link href="/forgot-password">Request a new link</Link>
+          <Link href="/forgot-password">ขอลิงก์ใหม่</Link>
         </p>
       </>
     );
@@ -35,9 +35,9 @@ export default async function ResetPasswordPage({ searchParams }) {
   return (
     <>
       <header className="auth-head">
-        <h1>Set a new password</h1>
+        <h1>ตั้งรหัสผ่านใหม่</h1>
         <p className="muted small">
-          Choose a new password for <strong>{user.email}</strong>.
+          ตั้งรหัสผ่านใหม่สำหรับ <strong>{user.email}</strong>
         </p>
       </header>
 
@@ -45,12 +45,12 @@ export default async function ResetPasswordPage({ searchParams }) {
 
       <form className="auth-form" action={updatePassword}>
         <label>
-          New password
+          รหัสผ่านใหม่
           <input
             name="password"
             type="password"
             autoComplete="new-password"
-            placeholder="At least 8 characters"
+            placeholder="อย่างน้อย 8 ตัวอักษร"
             required
             minLength={8}
             autoFocus
@@ -58,19 +58,19 @@ export default async function ResetPasswordPage({ searchParams }) {
         </label>
 
         <label>
-          Confirm password
+          ยืนยันรหัสผ่าน
           <input
             name="confirm"
             type="password"
             autoComplete="new-password"
-            placeholder="Type it again"
+            placeholder="พิมพ์รหัสผ่านอีกครั้ง"
             required
             minLength={8}
           />
         </label>
 
-        <SubmitButton className="btn big full" pendingLabel="Saving…">
-          Update password
+        <SubmitButton className="btn big full" pendingLabel="กำลังบันทึก…">
+          บันทึกรหัสผ่าน
         </SubmitButton>
       </form>
     </>

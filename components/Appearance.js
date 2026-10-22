@@ -29,16 +29,16 @@ export default function Appearance({ bot = {} }) {
   const accent2 = lighten(accent, 0.18);
   const accentFg = readableOn(accent);
 
-  const headTitle = title.trim() || bot.bot_name || 'Support bot';
-  const headSub = description.trim() || 'AI support · ask me anything';
-  const greetingText = greeting.trim() || `Hi! I'm ${bot.bot_name || 'your assistant'} 🤖 How can I help?`;
-  const placeholderText = placeholder.trim() || 'Type a message…';
+  const headTitle = title.trim() || bot.bot_name || 'บอทช่วยเหลือ';
+  const headSub = description.trim() || 'ผู้ช่วย AI · ถามได้เลย';
+  const greetingText = greeting.trim() || `สวัสดี นี่คือ ${bot.bot_name || 'บอทช่วยเหลือ'} มีอะไรสอบถามได้เลย`;
+  const placeholderText = placeholder.trim() || 'พิมพ์ข้อความ…';
 
   return (
     <section className="appearance form-sec frame">
-      <div className="form-sec-head"><span className="mono-idx">04</span><h2>Appearance</h2></div>
+      <div className="form-sec-head"><span className="mono-idx">04</span><h2>หน้าตาแชท</h2></div>
       <p className="muted small">
-        How the chat window looks and reads on your site. Changes preview live below.
+        กำหนดหน้าตาและข้อความในหน้าต่างแชท พร้อมดูตัวอย่างได้ทันที
       </p>
 
       <input type="hidden" name="accent_color" value={accent} />
@@ -48,62 +48,62 @@ export default function Appearance({ bot = {} }) {
       <div className="appearance-grid">
         <div className="appearance-controls">
           <label>
-            Title — heading at the top of the chat window
+            หัวข้อ — ข้อความด้านบนสุดของหน้าต่างแชท
             <input
               name="title"
               maxLength={60}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={bot.bot_name || 'Support bot'}
+              placeholder={bot.bot_name || 'บอทช่วยเหลือ'}
             />
           </label>
 
           <label>
-            Description — the small line under the title
+            คำอธิบายสั้น — บรรทัดใต้หัวข้อ
             <input
               name="description"
               maxLength={120}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="AI support · ask me anything"
+              placeholder="ผู้ช่วย AI · ถามได้เลย"
             />
           </label>
 
           <label>
-            Opening message — the first thing the bot says
+            ข้อความทักทาย — ประโยคแรกที่บอทพูด
             <textarea
               name="greeting"
               rows={3}
               maxLength={500}
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
-              placeholder={`Hi! I'm ${bot.bot_name || 'your assistant'} 🤖 How can I help?`}
+              placeholder={`สวัสดี นี่คือ ${bot.bot_name || 'บอทช่วยเหลือ'} มีอะไรสอบถามได้เลย`}
             />
           </label>
 
           <label>
-            Input placeholder — the greyed hint in the message box
+            ข้อความในช่องพิมพ์ — ตัวอย่างจาง ๆ ก่อนลูกค้าพิมพ์
             <input
               name="placeholder"
               maxLength={80}
               value={placeholder}
               onChange={(e) => setPlaceholder(e.target.value)}
-              placeholder="Type a message…"
+              placeholder="พิมพ์ข้อความ…"
             />
           </label>
 
           <div className="field">
-            <span className="field-label">Accent — chat bubble, icon &amp; Send button</span>
+            <span className="field-label">สีเน้น — ฟองแชท ไอคอน และปุ่มส่ง</span>
             <ColorPicker value={accent} onChange={setAccent} presets={ACCENT_PRESETS} />
           </div>
 
           <div className="field">
-            <span className="field-label">Background — the chat window colour</span>
+            <span className="field-label">สีพื้นหลัง — พื้นหลังหน้าต่างแชท</span>
             <ColorPicker value={bg} onChange={setBg} presets={BG_PRESETS} />
           </div>
 
           <div className="field">
-            <span className="field-label">Font — the message text colour</span>
+            <span className="field-label">สีตัวอักษร — ข้อความในหน้าต่างแชท</span>
             <ColorPicker value={font} onChange={setFont} presets={FONT_PRESETS} />
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function Appearance({ bot = {} }) {
                 className="cp-msg cp-msg--user"
                 style={{ background: `linear-gradient(135deg, ${accent}, ${accent2})`, color: accentFg }}
               >
-                What are your hours?
+                ร้านเปิดกี่โมง
               </div>
             </div>
             <div className="cp-form" style={{ borderColor: border }}>
@@ -137,7 +137,7 @@ export default function Appearance({ bot = {} }) {
                 className="cp-send"
                 style={{ background: `linear-gradient(135deg, ${accent}, ${accent2})`, color: accentFg }}
               >
-                Send
+                ส่ง
               </span>
             </div>
           </div>

@@ -33,7 +33,7 @@ export default function Home() {
             <br />
             <span className="hl">เริ่มทำงาน</span>แล้วหรือยัง
           </h2>
-          <p>สมัครฟรี สร้างบอทตัวแรกได้ในไม่กี่นาที ลองคุยกับบอทตัวอย่างได้ที่มุมขวาล่างของหน้านี้</p>
+          <p>สมัครฟรี สร้างบอทตัวแรกได้ในไม่กี่นาที — ลองคุยกับบอทตัวอย่างที่มุมขวาล่าง</p>
           <div className="hero-cta">
             <Link href="/signup" className="btn big">สร้างบอทตัวแรก <span aria-hidden="true">→</span></Link>
             <Link href="/login" className="btn ghost big">เข้าสู่ระบบ</Link>
@@ -56,6 +56,7 @@ export default function Home() {
         src="/yo-bot.js"
         data-bot="portfolio"
         data-bot-name="Yo-bot"
+        data-lang="th"
         strategy="afterInteractive"
       />
     </main>

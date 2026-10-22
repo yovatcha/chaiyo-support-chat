@@ -64,7 +64,10 @@
 /* ── 2. Base ───────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 html, body {
@@ -78,7 +81,10 @@ html, body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-body { overflow-x: clip; }
+body {
+  overflow-x: clip;
+  overflow-wrap: break-word;
+}
 
 ::selection { background: var(--red); color: #fff; }
 
@@ -88,9 +94,10 @@ button { font-family: inherit; }
 h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  letter-spacing: 0;
+  line-height: 1.25;
   color: var(--fg);
+  text-wrap: balance;
 }
 h1 { font-size: 1.9rem; margin: 0 0 .4rem; }
 h2 { font-size: 1.35rem; margin: 1.6rem 0 .6rem; }
@@ -117,7 +124,7 @@ code, pre { font-family: var(--font-mono); }
 /* ── 3. Console primitives ─────────────────────────────────────────────── */
 .mono-label {
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -390,10 +397,10 @@ button.link.danger { color: var(--red-hot); }
   margin: 22px 0 22px;
   font-size: clamp(2.4rem, 5.2vw, 4.6rem);
   font-weight: 700;
-  line-height: 1.16;
-  letter-spacing: -0.025em;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
-.hero-lead { max-width: 33em; margin: 0; font-size: 1.08rem; line-height: 1.75; color: var(--fg-2); }
+.hero-lead { max-width: 33em; margin: 0; font-size: 1.08rem; line-height: 1.75; color: var(--fg-2); text-wrap: pretty; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
 .hero-specs {
   display: flex;
@@ -452,7 +459,7 @@ button.link.danger { color: var(--red-hot); }
   align-items: center;
   gap: 7px;
   font-family: var(--font-mono);
-  font-size: .66rem;
+  font-size: .72rem;
   letter-spacing: .12em;
   color: var(--ok);
 }
@@ -471,12 +478,14 @@ button.link.danger { color: var(--red-hot); }
   font-size: .92rem;
   line-height: 1.55;
   border-radius: var(--r);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 .c-who {
   display: block;
   margin-bottom: 3px;
   font-family: var(--font-mono);
-  font-size: .6rem;
+  font-size: .7rem;
   letter-spacing: .16em;
   opacity: .6;
 }
@@ -498,13 +507,16 @@ button.link.danger { color: var(--red-hot); }
   font-size: .72rem;
   color: var(--fg-2);
 }
-.console-foot .mono-label { font-size: .6rem; color: var(--dim); }
+.console-foot .mono-label { font-size: .7rem; color: var(--dim); }
 .console-foot .sep { color: var(--dim); }
 
 @media (max-width: 960px) {
   .hero-inner { grid-template-columns: 1fr; }
   .hero { padding-bottom: 120px; }
   .console-log { height: 320px; }
+}
+@media (max-width: 480px) {
+  .hero h1 .nowrap { white-space: normal; }
 }
 
 /* Chapter scaffolding */
@@ -524,10 +536,10 @@ button.link.danger { color: var(--red-hot); }
   margin: 0;
   font-size: clamp(2rem, 4.2vw, 3.3rem);
   font-weight: 700;
-  line-height: 1.22;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
-.sec-lead { margin: 20px 0 0; max-width: 40em; font-size: 1.06rem; color: var(--fg-2); line-height: 1.75; }
+.sec-lead { margin: 20px 0 0; max-width: 40em; font-size: 1.06rem; color: var(--fg-2); line-height: 1.75; text-wrap: pretty; }
 
 /* 01 what */
 .pain {
@@ -867,8 +879,8 @@ button.link.danger { color: var(--red-hot); }
   pointer-events: none;
 }
 .close-inner { position: relative; z-index: 1; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.close h2 { margin: 24px 0 18px; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.025em; }
-.close p { margin: 0; max-width: 34em; color: var(--fg-2); font-size: 1.05rem; }
+.close h2 { margin: 24px 0 18px; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 700; line-height: 1.22; letter-spacing: 0; }
+.close p { margin: 0; max-width: 34em; color: var(--fg-2); font-size: 1.05rem; text-wrap: pretty; }
 .close .hero-cta { justify-content: center; }
 
 /* Footer */
@@ -902,8 +914,8 @@ button.link.danger { color: var(--red-hot); }
   margin: 18px 0 0;
   font-size: clamp(2rem, 3.4vw, 3.2rem);
   font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 .auth-tagline span { color: var(--red-hot); }
 .auth-points { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 12px; }
@@ -1096,6 +1108,9 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 input:hover, textarea:hover { border-color: var(--line-hot); }
 input:focus, textarea:focus { border-color: var(--red-hot); box-shadow: 0 0 0 3px var(--red-wash); }
 textarea { resize: vertical; line-height: 1.6; }
+@media (max-width: 768px) {
+  input, textarea, select { font-size: 1rem; }
+}
 .row { display: flex; gap: 10px; margin-top: 6px; }
 .row button { flex: 1; }
 
@@ -1138,7 +1153,15 @@ form.botform { display: flex; flex-direction: column; gap: 16px; }
 .cp-title { font-weight: 600; font-size: .9rem; line-height: 1.2; }
 .cp-sub { font-size: .7rem; margin-top: 1px; }
 .cp-log { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
-.cp-msg { max-width: 82%; padding: 8px 11px; border-radius: 12px; line-height: 1.45; transition: background .3s ease; }
+.cp-msg {
+  max-width: 82%;
+  padding: 8px 11px;
+  border-radius: 12px;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  transition: background .3s ease;
+}
 .cp-msg--bot { align-self: flex-start; border: 1px solid; border-bottom-left-radius: 3px; }
 .cp-msg--user { align-self: flex-end; border-bottom-right-radius: 3px; }
 .cp-form { display: flex; gap: 7px; padding: 11px; border-top: 1px solid; }
@@ -1186,7 +1209,8 @@ form.botform { display: flex; flex-direction: column; gap: 16px; }
   font-size: .8rem;
   line-height: 1.7;
   white-space: pre-wrap;
-  word-break: break-all;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 .embed .btn { margin-top: 6px; }
 

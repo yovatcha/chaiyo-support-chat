@@ -6,7 +6,7 @@ import Brand from '@/components/Brand';
 
 const LINKS = [
   { href: '#what', idx: '01', label: 'สิ่งที่เราทำ' },
-  { href: '#how', idx: '02', label: 'วิธีที่เราทำ' },
+  { href: '#how', idx: '02', label: 'ทำงานอย่างไร' },
   { href: '#use', idx: '03', label: 'วิธีใช้' },
 ];
 
@@ -36,7 +36,7 @@ export default function SiteNav() {
       </ul>
       <div className="sitenav-cta">
         <Link href="/login" className="btn ghost">เข้าสู่ระบบ</Link>
-        <Link href="/signup" className="btn">เริ่มใช้งาน</Link>
+        <Link href="/signup" className="btn">เริ่มสร้างบอท</Link>
       </div>
     </nav>
   );

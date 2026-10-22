@@ -9,7 +9,7 @@ import { widgetTheme, readableOn, luminance } from '@/lib/color';
 
 const STEPS = [
   { key: 'SIGN UP', title: 'สมัครบัญชี', time: '30 วินาที' },
-  { key: 'TEACH', title: 'สร้างบอท + ใส่ความรู้', time: '3 นาที' },
+  { key: 'TEACH', title: 'สร้างบอทและใส่ความรู้', time: '3 นาที' },
   { key: 'STYLE', title: 'ปรับหน้าตา', time: '1 นาที' },
   { key: 'EMBED', title: 'วางสคริปต์บนเว็บ', time: '10 วินาที' },
 ];
@@ -45,11 +45,11 @@ function MockSignup() {
   return (
     <div className="mock mock-auth">
       <span className="mono-label">/signup</span>
-      <h4>สร้างบัญชี Yo-bot</h4>
-      <div className="mock-field"><span>Email</span><div className="mock-input">{email}<i className="caret" /></div></div>
-      <div className="mock-field"><span>Password</span><div className="mock-input">••••••••••</div></div>
-      <div className="mock-btn">Create account</div>
-      <p className="mock-note">ยืนยันอีเมล แล้วเข้าสู่แดชบอร์ดได้ทันที</p>
+      <h4>สมัครบัญชี Yo-bot</h4>
+      <div className="mock-field"><span>อีเมล</span><div className="mock-input">{email}<i className="caret" /></div></div>
+      <div className="mock-field"><span>รหัสผ่าน</span><div className="mock-input">••••••••••</div></div>
+      <div className="mock-btn">สมัครบัญชี</div>
+      <p className="mock-note">สมัครด้วยอีเมล แล้วเริ่มสร้างบอทในแดชบอร์ด</p>
     </div>
   );
 }
@@ -64,13 +64,13 @@ function MockTeach() {
   return (
     <div className="mock mock-form">
       <span className="mono-label">/dashboard/bots/new</span>
-      <div className="mock-field"><span>Bot name</span><div className="mock-input">Acme Support</div></div>
-      <div className="mock-field"><span>Persona</span><div className="mock-input">{persona}</div></div>
+      <div className="mock-field"><span>ชื่อบอท</span><div className="mock-input">Acme Support</div></div>
+      <div className="mock-field"><span>บุคลิกบอท</span><div className="mock-input">{persona}</div></div>
       <div className="mock-field">
-        <span>Knowledge</span>
+        <span>ความรู้</span>
         <div className="mock-input mock-area">{knowledge}<i className="caret" /></div>
       </div>
-      <div className="mock-field"><span>Fallback contact</span><div className="mock-input">LINE @acme</div></div>
+      <div className="mock-field"><span>ช่องทางติดต่อสำรอง</span><div className="mock-input">LINE @acme</div></div>
     </div>
   );
 }
@@ -113,7 +113,7 @@ function MockStyle({ onTouch }) {
             />
           ))}
         </div>
-        <p className="mock-note">ลองกดเลือกสีดู ตัวอย่างด้านขวาเปลี่ยนตามทันที เหมือนในแดชบอร์ดจริง</p>
+        <p className="mock-note">ลองเลือกสี — ตัวอย่างจะเปลี่ยนทันทีเหมือนในแดชบอร์ดจริง</p>
       </div>
 
       <div className="cp-panel" style={{ background: t.bg, color: t.font, borderColor: t.border }}>
@@ -132,7 +132,7 @@ function MockStyle({ onTouch }) {
             ค่าส่งเท่าไหร่ครับ
           </div>
           <div className="cp-msg cp-msg--bot" style={{ background: t.card, borderColor: t.border }}>
-            50 บาทครับ สั่งครบ 990 ส่งฟรี
+            ค่าส่ง 50 บาทครับ สั่งครบ 990 บาท ส่งฟรี
           </div>
         </div>
         <div className="cp-form" style={{ borderColor: t.border }}>
@@ -173,7 +173,7 @@ function MockEmbed({ onTouch }) {
       </pre>
       <div className="mock-embed-row">
         <button type="button" className="btn" onClick={copy}>{copied ? 'คัดลอกแล้ว ✓' : 'คัดลอกโค้ด'}</button>
-        <p className="mock-note">วางก่อนปิดแท็ก &lt;/body&gt; เสร็จแล้ว ปุ่มแชทจะขึ้นที่มุมขวาล่าง — แบบเดียวกับที่มุมจอนี้</p>
+        <p className="mock-note">วางก่อน &lt;/body&gt; — ปุ่มแชทจะปรากฏที่มุมขวาล่างเหมือนในหน้านี้</p>
       </div>
     </div>
   );
@@ -208,8 +208,8 @@ export default function HowToUse() {
         <SectionHead
           idx="03"
           en="HOW TO USE"
-          title={<>วิธีใช้: จากศูนย์จนบอทออนไลน์<br />ใน 4 ขั้นตอน</>}
-          lead="ไม่ต้องเขียนโค้ด ไม่ต้องตั้งเซิร์ฟเวอร์ ทุกอย่างทำในแดชบอร์ด แล้วคัดลอกโค้ดบรรทัดเดียวไปวาง"
+          title={<>วิธีใช้: จากศูนย์สู่บอทออนไลน์<br />ใน 4 ขั้นตอน</>}
+          lead="ไม่ต้องเขียนโค้ดหรือตั้งเซิร์ฟเวอร์ ตั้งค่าทุกอย่างในแดชบอร์ด แล้วนำสคริปต์บรรทัดเดียวไปวางบนเว็บไซต์"
         />
 
         <div className="use">
@@ -262,7 +262,7 @@ export default function HowToUse() {
         </div>
 
         <div className="use-foot">
-          <Link href="/signup" className="btn big">เริ่มขั้นตอนที่ 01 เลย <span aria-hidden="true">→</span></Link>
+          <Link href="/signup" className="btn big">เริ่มสร้างบอท <span aria-hidden="true">→</span></Link>
         </div>
       </div>
     </section>

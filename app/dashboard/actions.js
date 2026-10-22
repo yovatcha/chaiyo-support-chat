@@ -12,28 +12,43 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 
 class FormError extends Error {}
 
+const FIELD_LABELS = {
+  bot_name: 'ชื่อบอท',
+  title: 'หัวข้อ',
+  description: 'คำอธิบายสั้น',
+  greeting: 'ข้อความทักทาย',
+  placeholder: 'ข้อความในช่องพิมพ์',
+  accent_color: 'สีเน้น',
+  bg_color: 'สีพื้นหลัง',
+  font_color: 'สีตัวอักษร',
+  persona: 'บุคลิกบอท',
+  scope: 'ขอบเขต',
+  fallback_contact: 'ช่องทางติดต่อสำรอง',
+  knowledge: 'ความรู้',
+};
+
 function str(formData, name) {
   return String(formData.get(name) || '').trim();
 }
 
 function capped(formData, name, { required = false } = {}) {
   const v = str(formData, name);
-  if (required && !v) throw new FormError(`${label(name)} is required.`);
+  if (required && !v) throw new FormError(`กรุณากรอก${label(name)}`);
   if (v.length > LIMITS[name]) {
-    throw new FormError(`${label(name)} is too long (max ${LIMITS[name].toLocaleString()} characters).`);
+    throw new FormError(`${label(name)}ยาวเกินไป (สูงสุด ${LIMITS[name].toLocaleString('th-TH')} ตัวอักษร)`);
   }
   return v;
 }
 
 function label(name) {
-  return name.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+  return FIELD_LABELS[name] || name.replace(/_/g, ' ');
 }
 
 // A colour must be a 6-digit hex; blank means "use the default".
 function hexField(formData, name, fallback) {
   const v = str(formData, name).toLowerCase();
   if (!v) return fallback;
-  if (!HEX.test(v)) throw new FormError(`${label(name)} must be a 6-digit hex colour like #5e85a4.`);
+  if (!HEX.test(v)) throw new FormError(`${label(name)}ไม่ถูกต้อง ใช้รหัส hex 6 หลัก เช่น #5e85a4`);
   return v;
 }
 
@@ -48,15 +63,15 @@ function originsField(formData) {
     try {
       url = new URL(/^https?:\/\//i.test(piece) ? piece : `https://${piece}`);
     } catch {
-      throw new FormError(`"${piece}" is not a valid website origin.`);
+      throw new FormError(`“${piece}” ไม่ใช่โดเมนเว็บที่ถูกต้อง`);
     }
     if (!url.hostname.includes('.') && url.hostname !== 'localhost') {
-      throw new FormError(`"${piece}" is not a valid website origin.`);
+      throw new FormError(`“${piece}” ไม่ใช่โดเมนเว็บที่ถูกต้อง`);
     }
     if (!out.includes(url.origin)) out.push(url.origin);
   }
   if (out.length > LIMITS.allowed_origins) {
-    throw new FormError(`At most ${LIMITS.allowed_origins} allowed origins.`);
+    throw new FormError(`ระบุโดเมนได้ไม่เกิน ${LIMITS.allowed_origins} โดเมน`);
   }
   return out;
 }
@@ -64,7 +79,7 @@ function originsField(formData) {
 // Pull and validate the editable bot fields out of a submitted form.
 function botFields(formData) {
   return {
-    bot_name: capped(formData, 'bot_name') || 'Support bot',
+    bot_name: capped(formData, 'bot_name') || 'บอทช่วยเหลือ',
     title: capped(formData, 'title'),
     description: capped(formData, 'description'),
     greeting: capped(formData, 'greeting'),
@@ -97,7 +112,7 @@ function fail(path, message) {
 function describe(err) {
   if (err instanceof FormError) return err.message;
   console.error('bot action error', err);
-  return 'Could not save the bot. Please try again.';
+  return 'บันทึกบอทไม่สำเร็จ กรุณาลองอีกครั้ง';
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -146,7 +161,7 @@ export async function updateBot(id, formData) {
     .select('id');
 
   if (error) fail(page, describe(error));
-  if (!data || data.length === 0) fail(page, 'This bot no longer exists or is not yours.');
+  if (!data || data.length === 0) fail(page, 'ไม่พบบอทนี้ หรือคุณไม่มีสิทธิ์แก้ไข');
 
   revalidatePath('/dashboard');
   revalidatePath(page);
@@ -165,7 +180,7 @@ export async function deleteBot(id) {
     .select('id');
 
   if (error) fail('/dashboard/bots/' + id, describe(error));
-  if (!data || data.length === 0) fail('/dashboard/bots/' + id, 'This bot no longer exists or is not yours.');
+  if (!data || data.length === 0) fail('/dashboard/bots/' + id, 'ไม่พบบอทนี้ หรือคุณไม่มีสิทธิ์ลบ');
 
   revalidatePath('/dashboard');
   redirect('/dashboard?deleted=1');

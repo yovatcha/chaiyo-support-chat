@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requestPasswordReset } from '../actions';
 import SubmitButton from '@/components/SubmitButton';
 
-export const metadata = { title: 'Reset your password — Yo-bot' };
+export const metadata = { title: 'ตั้งรหัสผ่านใหม่ — Yo-bot' };
 
 export default async function ForgotPasswordPage({ searchParams }) {
   const params = await searchParams;
@@ -12,15 +12,15 @@ export default async function ForgotPasswordPage({ searchParams }) {
       <>
         <div className="auth-icon" aria-hidden="true">✉</div>
         <header className="auth-head">
-          <h1>Check your email</h1>
+          <h1>ตรวจสอบอีเมลของคุณ</h1>
           <p className="muted small">
-            If {params?.email ? <strong>{params.email}</strong> : 'that address'} has
-            an account, a password reset link is on its way. The link expires in
-            an hour.
+            หากมีบัญชีที่ใช้
+            {' '}{params?.email ? <strong>{params.email}</strong> : 'อีเมลนี้'}
+            {' '}เราจะส่งลิงก์ตั้งรหัสผ่านใหม่ให้ ลิงก์ใช้ได้ 1 ชั่วโมง
           </p>
         </header>
         <p className="auth-alt muted small">
-          <Link href="/login">Back to sign in</Link>
+          <Link href="/login">กลับไปเข้าสู่ระบบ</Link>
         </p>
       </>
     );
@@ -29,15 +29,15 @@ export default async function ForgotPasswordPage({ searchParams }) {
   return (
     <>
       <header className="auth-head">
-        <h1>Reset your password</h1>
+        <h1>ลืมรหัสผ่าน</h1>
         <p className="muted small">
-          Enter your email and we’ll send you a link to set a new one.
+          กรอกอีเมลที่ใช้สมัคร เราจะส่งลิงก์ตั้งรหัสผ่านใหม่ให้
         </p>
       </header>
 
       <form className="auth-form" action={requestPasswordReset}>
         <label>
-          Email
+          อีเมล
           <input
             name="email"
             type="email"
@@ -49,13 +49,13 @@ export default async function ForgotPasswordPage({ searchParams }) {
           />
         </label>
 
-        <SubmitButton className="btn big full" pendingLabel="Sending…">
-          Send reset link
+        <SubmitButton className="btn big full" pendingLabel="กำลังส่ง…">
+          ส่งลิงก์ตั้งรหัสผ่านใหม่
         </SubmitButton>
       </form>
 
       <p className="auth-alt muted small">
-        Remembered it? <Link href="/login">Sign in</Link>
+        นึกรหัสผ่านได้แล้ว? <Link href="/login">เข้าสู่ระบบ</Link>
       </p>
     </>
   );

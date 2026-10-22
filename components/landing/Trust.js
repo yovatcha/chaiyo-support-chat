@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { animate, useInView, useReducedMotion } from 'motion/react';
 
 const STATS = [
-  { value: 10, unit: '/นาที', label: 'ข้อความต่อผู้ใช้หนึ่งคน', code: 'RATE.IP' },
-  { value: 120, unit: '/นาที', label: 'ข้อความต่อบอทหนึ่งตัว', code: 'RATE.BOT' },
+  { value: 10, unit: '/นาที', label: 'ข้อความต่อ IP ผู้เยี่ยมชม', code: 'RATE.IP' },
+  { value: 120, unit: '/นาที', label: 'ข้อความต่อบอท', code: 'RATE.BOT' },
   { value: 500, unit: 'ตัวอักษร', label: 'ความยาวสูงสุดต่อข้อความ', code: 'MSG.MAX' },
-  { value: 100, unit: '%', label: 'ข้อมูลแยกตามเจ้าของด้วย Row Level Security', code: 'DB.RLS' },
+  { value: 100, unit: '%', label: 'แยกข้อมูลตามบัญชีด้วย Row Level Security', code: 'DB.RLS' },
 ];
 
 function Count({ to }) {
