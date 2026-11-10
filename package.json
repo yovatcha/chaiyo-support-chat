@@ -12,13 +12,16 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.110.0",
     "gsap": "^3.15.0",
+    "linkedom": "^0.18.15",
     "motion": "^14.5.0",
     "next": "^15.5.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "turndown": "^7.2.5"
   },
   "devDependencies": {
     "eslint": "^9",

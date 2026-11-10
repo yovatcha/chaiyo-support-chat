@@ -2,6 +2,7 @@
 // to a server action passed in by the page.
 
 import Appearance from '@/components/Appearance';
+import KnowledgeField from '@/components/KnowledgeField';
 import SubmitButton from '@/components/SubmitButton';
 import { LIMITS } from '@/lib/bot-limits';
 
@@ -58,17 +59,7 @@ export default function BotForm({ action, bot = {}, submitLabel, pendingLabel = 
 
       <div className="form-sec frame">
         <div className="form-sec-head"><span className="mono-idx">02</span><h2>ความรู้</h2></div>
-        <label>
-          สิ่งที่บอทควรรู้ (สูงสุด {LIMITS.knowledge.toLocaleString('th-TH')} ตัวอักษร)
-          <textarea
-            name="knowledge"
-            rows={14}
-            required
-            maxLength={LIMITS.knowledge}
-            defaultValue={bot.knowledge || ''}
-            placeholder="วาง FAQ เอกสาร รายละเอียดสินค้า เวลาเปิด หรือนโยบายต่าง ๆ ใช้ข้อความธรรมดาได้"
-          />
-        </label>
+        <KnowledgeField defaultValue={bot.knowledge || ''} />
 
       </div>
 

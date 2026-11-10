@@ -1160,6 +1160,15 @@ form.botform { display: flex; flex-direction: column; gap: 16px; }
 .field { margin-bottom: 18px; }
 .field-label { display: block; font-size: .86rem; font-weight: 500; color: var(--fg-2); margin-bottom: 10px; }
 
+.kb-import-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.kb-import-row input { flex: 1 1 260px; min-width: 0; margin: 0; }
+.kb-import-row select { flex: 0 0 auto; width: auto; margin: 0; }
+.kb-import-row .btn { flex: 0 0 auto; }
+.kb-import-status { margin: 10px 0 0; font-size: .86rem; color: var(--fg-2); }
+.kb-import-status.error { color: var(--red-hot); }
+.kb-import-status ul { margin: 6px 0 0; padding-left: 18px; }
+.kb-import-status li { overflow-wrap: anywhere; }
+
 /* ── 11. Appearance editor + preview ───────────────────────────────────── */
 .appearance > .muted { margin: -8px 0 0; }
 .appearance-grid { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 22px; }
